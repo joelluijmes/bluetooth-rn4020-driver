@@ -56,9 +56,11 @@ int main()
 	cout << "Opened COM15" << endl;
 
 	RN4020 bluetooth(serialPort);
+
+	cout << "Name set: " << bluetooth.SetSerializedName("name", 4) << endl;
 	
 	char buf[32];
-	if (bluetooth.GetDisplayName(buf, 32))
+	if (bluetooth.GetName(buf, 32))
 		cout << "Name: " << buf << endl;
 	else
 		cout << "Failed to get name from device" << endl;

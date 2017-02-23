@@ -13,8 +13,29 @@ namespace Bluetooth
 		{
 		}
 
-		bool SetDisplayName(const char* name, uint8_t len) const override;
-		bool GetDisplayName(char* name, uint8_t len) const override;
+		bool SetName(const char* name, uint8_t len) const override;
+		bool GetName(char* name, uint8_t len) const override;
+
+		/// 
+		/// This command sets the serialized Bluetooth-friendly name of the device, where
+		/// <string> is up to 15 alphanumeric characters.This command automatically appends
+		///	the last 2 bytes of the Bluetooth MAC address to the name, which is useful for
+		///	generating a custom name with unique numbering
+		///
+		/// @param name		Bluetooth-friendly name
+		/// @param len		Length of name, maximum is 15
+		/// @return			true if operation completed succesfully
+		/// 
+		bool SetSerializedName(const char* name, uint8_t len) const;
+
+		/// 
+		/// This command gets the serialized Bluetooth-friendly name of the device.
+		///
+		/// @param name		Bluetooth-friendly name
+		/// @param len		Length of name, maximum is 15
+		/// @return			true if operation completed succesfully
+		/// 
+		bool GetSerializedName(char* name, uint8_t len) const;
 	};
 }
 

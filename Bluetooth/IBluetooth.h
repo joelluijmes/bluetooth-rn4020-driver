@@ -16,8 +16,8 @@ namespace Bluetooth
 
 		virtual ~IBluetooth() = default;
 
-		virtual bool SetDisplayName(const char* name, uint8_t len) const = 0;
-		virtual bool GetDisplayName(char* name, uint8_t len) const = 0;
+		virtual bool SetName(const char* name, uint8_t len) const = 0;
+		virtual bool GetName(char* name, uint8_t len) const = 0;
 
 		const Serial::ISerial& GetSerial() const
 		{
