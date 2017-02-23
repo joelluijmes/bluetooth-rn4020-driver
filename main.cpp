@@ -1,19 +1,23 @@
 ﻿// user libraries
 #include "Windows/WindowsSerialPort.h"
+#include "Windows/LastError.h"
 
 #include "Serial/ParityBit.h"
 #include "Serial/BaudRate.h"
 #include "Serial/DataBit.h"
 #include "Serial/StopBit.h"
 
+#include "Bluetooth/RN4020.h"
+
 // std libraries
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
-#include "Windows/LastError.h"
+
 
 using namespace std;
 using namespace Serial;
+using namespace Bluetooth;
 
 bool ReadWrite(const WindowsSerialPort& port, std::string message)
 {
@@ -51,14 +55,22 @@ int main()
 
 	cout << "Opened COM15" << endl;
 
-	string message;
+	RN4020 bluetooth(serialPort);
+	
+	char buf[32];
+	if (bluetooth.GetDisplayName(buf, 32))
+		cout << "Name: " << buf << endl;
+	else
+		cout << "Failed to get name from device" << endl;
+
+	/*string message;
 	do
 	{
 		cout << "Enter command: ";
 		
 		getline(cin, message);
 		message += "\r\n";
-	} while (ReadWrite(serialPort, message));
+	} while (ReadWrite(serialPort, message));*/
 
 	return 0;
 }

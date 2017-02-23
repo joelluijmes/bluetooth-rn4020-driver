@@ -30,17 +30,20 @@ namespace Serial
 		dcb.Parity = GetParity();
 		dcb.StopBits = GetStopbits();
 
+		if (!SetCommState(m_hComPort, &dcb))
+			return false;
+
 		COMMTIMEOUTS timeouts;
 
 		timeouts.ReadIntervalTimeout = 1;
 		timeouts.ReadTotalTimeoutMultiplier = 1;
-		timeouts.ReadTotalTimeoutConstant = 1;
+		timeouts.ReadTotalTimeoutConstant = 100;	// wait at least 100ms before timing out
 		timeouts.WriteTotalTimeoutMultiplier = 1;
-		timeouts.WriteTotalTimeoutConstant = 1;
+		timeouts.WriteTotalTimeoutConstant = 100;
 		if (!SetCommTimeouts(m_hComPort, &timeouts))
 			return false;
 		
-		return SetCommState(m_hComPort, &dcb);
+		return true;
 	}
 
 	bool WindowsSerialPort::Close()
