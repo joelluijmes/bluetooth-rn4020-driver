@@ -57,7 +57,7 @@ int main()
 
 	RN4020 bluetooth(serialPort);
 
-	cout << "Name set: " << bluetooth.SetSerializedName("name", 4) << endl;
+	cout << "Name set: " << bluetooth.SetSerializedName("name") << endl;
 	
 	char buf[32];
 	if (bluetooth.GetName(buf, 32))
@@ -67,7 +67,7 @@ int main()
 
 	RN4020::BaudRate rate;
 	if (bluetooth.GetBaudRate(&rate))
-		cout << "baud rate: " << rate;
+		cout << "baud rate: " << rate << endl;
 	cout << "set baud " <<bluetooth.SetBaudRate(RN4020::RN4020_BAUD_115200) << endl;
 
 	/*string message;

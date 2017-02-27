@@ -7,75 +7,81 @@
 #define MAX_SERIALIZED_NAME 15
 #define MAX_NAME_LEN 20
 
-// RN4020 Commands
-#define CMD_SET_SERIALIZED_NAME "S-,"
-#define CMD_GET_SERIALIZED_NAME "G-"
-#define CMD_SET_NAME "SN,"
-#define CMD_GET_NAME "GN"
-#define CMD_SET_BAUD "SB,"
-#define CMD_GET_BAUD "GB"
+namespace
+{
+	void stripNewLines(char* str) 
+	{
+		char* p = str;
+		while (*str)
+		{
+			if (*p != '\r' && *p != '\n')
+				*p++ = *str++;
+			else
+				++str;
+		}
+
+		*p = '\0';
+	}
+}
 
 namespace Bluetooth
 {
-	bool RN4020::SetName(const char* name, uint8_t len) const
+	const char* const RN4020::CMD_SET_SERIALIZED_NAME = "S-";
+	const char* const RN4020::CMD_GET_SERIALIZED_NAME = "G-";
+	const char* const RN4020::CMD_SET_NAME = "SN";
+	const char* const RN4020::CMD_GET_NAME = "GN";
+	const char* const RN4020::CMD_SET_BAUD = "SB";
+	const char* const RN4020::CMD_GET_BAUD = "GB";
+	
+	bool RN4020::Set(const char* command, const char* param) const
 	{
-		if (len > MAX_NAME_LEN)
+		const Serial::ISerial& serial = GetSerial();
+
+		if (serial.Send(command, strlen(command)) == -1)
+			return false;
+		if (serial.Send(",", 1) == -1)
+			return false;
+		if (serial.Send(param, strlen(param)) == -1)
+			return false;
+		if (serial.Send("\r\n", 2) == -1)
 			return false;
 
-		char buf[MAX_NAME_LEN + sizeof(CMD_SET_NAME)] = CMD_SET_NAME;
-		strncpy(buf + sizeof(CMD_SET_NAME) - 1, name, len);
-
-		if (!ReadWrite(buf, strlen(buf), buf, sizeof(buf)))
-			return false;
-
-		return strncmp(buf, "AOK", 3) == 0;
-	}
-
-	bool RN4020::GetName(char* name, uint8_t len) const
-	{
-		char buf[] = CMD_GET_NAME;
-		return ReadWrite(buf, strlen(buf), name, len);
-	}
-
-	bool RN4020::SetSerializedName(const char* name, uint8_t len) const
-	{
-		if (len > MAX_SERIALIZED_NAME)
-			return false;
-
-		char buf[MAX_SERIALIZED_NAME + sizeof(CMD_SET_SERIALIZED_NAME)] = CMD_SET_SERIALIZED_NAME;
-		strncpy(buf + sizeof(CMD_SET_SERIALIZED_NAME) - 1, name, len);
-
-		if (!ReadWrite(buf, strlen(buf), buf, sizeof(buf)))
+		// RN4020 returns AOK of ERR for set commands
+		// (don't forget the trailling \r\n)
+		char buf[5] = {0};
+		int32_t received = serial.Receive(buf, sizeof(buf));
+		if (received == -1)
 			return false;
 
 		return strncmp(buf, "AOK", 3) == 0;
 	}
 
-	bool RN4020::GetSerializedName(char* name, uint8_t len) const
+	bool RN4020::Get(const char* command, char* buf, uint8_t len, uint8_t* received) const
 	{
-		char buf[] = CMD_SET_SERIALIZED_NAME;
-		return ReadWrite(buf, sizeof(buf), name, len);
-	}
+		const Serial::ISerial& serial = GetSerial();
 
-	bool RN4020::SetBaudRate(BaudRate baud) const
-	{
-		char buf[sizeof(CMD_SET_BAUD) + 1] = CMD_SET_BAUD;
-		buf[sizeof(CMD_SET_BAUD) - 1] = static_cast<int>(baud) + '0';
-
-		if (!ReadWrite(buf, strlen(buf), buf, 3))
+		if (serial.Send(command, strlen(command)) == -1)
+			return false;
+		if (serial.Send("\r\n", 2) == -1)
 			return false;
 
-		return strncmp(buf, "AOK", 3) == 0;
+		uint8_t tmp = serial.Receive(buf, len);
+		if (received)
+			*received = tmp;
+
+		return tmp != -1;
 	}
 
-	bool RN4020::GetBaudRate(BaudRate* baud) const
+	bool RN4020::GetString(const char* command, char* buf, uint8_t len, bool stripNewLine) const
 	{
-		char buf[sizeof(CMD_GET_BAUD) + 1] = CMD_GET_BAUD;
-
-		if (!ReadWrite(buf, strlen(buf), reinterpret_cast<char*>(&buf), 1))
+		uint8_t received;
+		if (!Get(command, buf, len, &received))
 			return false;
 
-		*baud = static_cast<BaudRate>(buf[0] - '0');
+		buf[received] = '\0';
+		if (stripNewLine)
+			stripNewLines(buf);
+
 		return true;
 	}
 }
