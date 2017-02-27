@@ -53,10 +53,15 @@ int main()
 		return 1;
 	}
 
+	cout << boolalpha << hex;
 	cout << "Opened COM15" << endl;
 
 	RN4020 bluetooth(serialPort);
+	
 
+	//cout << "Reset: " <<  bluetooth.ResetDefaults(true) << endl;
+
+	
 	cout << "Name set: " << bluetooth.SetSerializedName("name") << endl;
 	
 	char buf[32];
@@ -69,6 +74,24 @@ int main()
 	if (bluetooth.GetBaudRate(&rate))
 		cout << "baud rate: " << rate << endl;
 	cout << "set baud " <<bluetooth.SetBaudRate(RN4020::RN4020_BAUD_115200) << endl;
+
+	bluetooth.GetFirmwareVersion(buf, sizeof(buf));
+	cout << "firmware version: " << buf << endl;
+
+	RN4020::Features features;
+	bluetooth.GetFeatures(&features);
+	cout << "features: " << features << endl;
+
+	RN4020::Services services;
+	bluetooth.GetServerServices(&services);
+	cout << "services: " << services << endl;
+
+	uint16_t interval; uint16_t latency; uint16_t timeout;
+	bluetooth.GetTiming(&interval, &latency, &timeout);
+	cout << "interval: " << interval << endl;
+	cout << "latency: " << latency << endl;
+	cout << "timeout: " << timeout << endl;
+
 
 	/*string message;
 	do

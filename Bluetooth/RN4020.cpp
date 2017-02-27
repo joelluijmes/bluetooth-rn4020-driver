@@ -25,14 +25,7 @@ namespace
 }
 
 namespace Bluetooth
-{
-	const char* const RN4020::CMD_SET_SERIALIZED_NAME = "S-";
-	const char* const RN4020::CMD_GET_SERIALIZED_NAME = "G-";
-	const char* const RN4020::CMD_SET_NAME = "SN";
-	const char* const RN4020::CMD_GET_NAME = "GN";
-	const char* const RN4020::CMD_SET_BAUD = "SB";
-	const char* const RN4020::CMD_GET_BAUD = "GB";
-	
+{	
 	bool RN4020::Set(const char* command, const char* param) const
 	{
 		const Serial::ISerial& serial = GetSerial();
@@ -56,6 +49,14 @@ namespace Bluetooth
 		return strncmp(buf, "AOK", 3) == 0;
 	}
 
+	bool RN4020::SetHex32(const char* command, uint32_t value) const
+	{
+		char buf[9] = { 0 };
+		snprintf(buf, 8, "%08X", value);
+
+		return Set(command, buf);
+	}
+
 	bool RN4020::Get(const char* command, char* buf, uint8_t len, uint8_t* received) const
 	{
 		const Serial::ISerial& serial = GetSerial();
@@ -70,6 +71,24 @@ namespace Bluetooth
 			*received = tmp;
 
 		return tmp != -1;
+	}
+
+	bool RN4020::GetHex32(const char* command, uint32_t* value) const
+	{
+		char buf[11] = { 0 };
+		if (!GetString("GS", buf, sizeof(buf) - 1))
+			return false;
+
+#if ULONG_MAX >= 0xFFFFFFFFU
+		unsigned long val = strtoul(buf, NULL, 16);		
+#elif ULLONG_MAX >= 0xFFFFFFFFU
+		unsigned long long val = strtoull(buf, NULL, 16);
+#else
+#error "unable to convert hex32 string to the largest integer (unsigned long long) type using std library (strtoull)"
+#endif
+
+		*value = static_cast<uint32_t>(val);
+		return true;
 	}
 
 	bool RN4020::GetString(const char* command, char* buf, uint8_t len, bool stripNewLine) const
