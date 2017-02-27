@@ -18,17 +18,26 @@ namespace Serial
 		if (m_hComPort == INVALID_HANDLE_VALUE)
 			return false;
 
-		// first retrieve the current configuration before altering it
+		// intialize everything with 0:
+		// - disables CTS control flow
+		// - disables XON/XOFF 
 		DCB dcb = { 0 };
 		dcb.DCBlength = sizeof(DCB);
-		if (!GetCommState(m_hComPort, &dcb))
-			return false;
 
-		// set our configuration
+		// user configuration
 		dcb.BaudRate = GetBaudrate();
 		dcb.ByteSize = GetDatabits();
 		dcb.Parity = GetParity();
 		dcb.StopBits = GetStopbits();
+		// Windows only supports binary 
+		dcb.fBinary = TRUE;		
+		// enable RTS
+		dcb.fRtsControl = RTS_CONTROL_ENABLE;
+		// set Xon/Xoff settings
+		dcb.XonLim = 2048;
+		dcb.XoffLim = 512;
+		dcb.XonChar = 0x11;
+		dcb.XoffChar = 0x13;
 
 		if (!SetCommState(m_hComPort, &dcb))
 			return false;

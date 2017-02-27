@@ -65,6 +65,11 @@ int main()
 	else
 		cout << "Failed to get name from device" << endl;
 
+	RN4020::BaudRate rate;
+	if (bluetooth.GetBaudRate(&rate))
+		cout << "baud rate: " << rate;
+	cout << "set baud " <<bluetooth.SetBaudRate(RN4020::RN4020_BAUD_115200) << endl;
+
 	/*string message;
 	do
 	{
