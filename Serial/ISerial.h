@@ -13,6 +13,7 @@ namespace Serial
 
 		virtual int32_t Send(const char* buffer, uint32_t len) const = 0;
 		virtual int32_t Receive(char* buffer, uint32_t len) const = 0;
+		virtual void Flush() const = 0;
 	};
 }
 #endif // !ISERIAL_H_
