@@ -45,8 +45,8 @@ namespace Bluetooth
 
 	bool RN4020::SetTiming(uint16_t interval, uint16_t latency, uint16_t timeout) const
 	{
-		char buf[15] = {0};
-		snprintf(buf, 14, "%04X,%04X,%04X", interval, latency, timeout);
+		char buf[16] = {0};
+		snprintf(buf, 15, "%04X,%04X,%04X", interval, latency, timeout);
 
 		return Set("ST", buf);
 	}
@@ -91,8 +91,8 @@ namespace Bluetooth
 		if (interval == 0 && window == 0)
 			return Set("A", NULL);
 
-		char buf[10] = {0};
-		snprintf(buf, 9, "%04X,%04X", interval, window);
+		char buf[11] = {0};
+		snprintf(buf, 10, "%04X,%04X", interval, window);
 
 		return Set("A", buf);
 	}
@@ -116,8 +116,8 @@ namespace Bluetooth
 		if (interval == 0 && window == 0)
 			return Set("F", NULL);
 
-		char buf[10] = { 0 };
-		snprintf(buf, 9, "%04X,%04X", interval, window);
+		char buf[11] = { 0 };
+		snprintf(buf, 10, "%04X,%04X", interval, window);
 
 		return Set("F", buf);
 	}
@@ -146,15 +146,15 @@ namespace Bluetooth
 	{
 		char buf[51] = { 0 };
 		for (uint8_t i = 0; i < len; ++i)
-			snprintf(buf + 2, 2, "%02X", data[i]);
+			snprintf(buf + 2, 3, "%02X", data[i]);
 
 		return Set("N", buf);
 	}
 
 	bool RN4020::UpdateTimings(uint16_t interval, uint16_t latency, uint16_t timeout) const
 	{
-		char buf[15] = { 0 };
-		snprintf(buf, 14, "%04X,%04X,%04X", interval, latency, timeout);
+		char buf[16] = { 0 };
+		snprintf(buf, 15, "%04X,%04X,%04X", interval, latency, timeout);
 
 		return Set("T", buf);
 	}
@@ -189,8 +189,8 @@ namespace Bluetooth
 
 	bool RN4020::SetHex32(const char* command, uint32_t value) const
 	{
-		char buf[9] = { 0 };
-		snprintf(buf, 8, "%08X", value);
+		char buf[10] = { 0 };
+		snprintf(buf, 9, "%08X", value);
 
 		return Set(command, buf);
 	}
