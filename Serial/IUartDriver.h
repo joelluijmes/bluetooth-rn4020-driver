@@ -16,7 +16,6 @@ namespace Serial
 	class IUartDriver : public ISerial
 	{
 	public:
-		
 		IUartDriver(BaudRate baudrate, DataBit databits, ParityBit parity, StopBit stopbits)
 			: m_Baudrate(baudrate),
 			m_Databits(databits),

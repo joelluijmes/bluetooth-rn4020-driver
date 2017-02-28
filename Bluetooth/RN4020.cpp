@@ -151,12 +151,38 @@ namespace Bluetooth
 		return Set("N", buf);
 	}
 
+	void RN4020::Reboot() const
+	{
+		char buf[9] = { 0 }; // Reboot + \r\n
+
+		// use Get to flush the incomming Reboot text
+		Get("R,1", buf, sizeof(buf), NULL);
+
+		// when it is booted it puts out CMD
+		WaitAnything();
+	}
+
 	bool RN4020::UpdateTimings(uint16_t interval, uint16_t latency, uint16_t timeout) const
 	{
 		char buf[16] = { 0 };
 		snprintf(buf, 15, "%04X,%04X,%04X", interval, latency, timeout);
 
 		return Set("T", buf);
+	}
+
+	bool RN4020::WaitAnything(uint8_t timeout) const
+	{
+		const Serial::ISerial& serial = GetSerial();
+
+		char buf[64];
+		for (uint8_t i = 0; i < timeout; ++i)
+		{
+			int32_t tmp = serial.Receive(buf, sizeof(buf));
+			if (tmp > 0)
+				return true;
+		}
+
+		return false;
 	}
 
 	bool RN4020::Set(const char* command, const char* param) const
@@ -204,7 +230,7 @@ namespace Bluetooth
 		if (serial.Send("\r\n", 2) == -1)
 			return false;
 
-		uint8_t tmp = serial.Receive(buf, len);
+		int32_t tmp = serial.Receive(buf, len);
 		if (received)
 			*received = tmp;
 

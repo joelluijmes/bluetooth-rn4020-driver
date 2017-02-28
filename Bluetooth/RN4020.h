@@ -482,10 +482,7 @@ namespace Bluetooth
 		/// mandatory parameter of ‘1’.After rebooting the RN4020 module, all prior change
 		/// settings take effect.
 		/// 
-		void Reboot() const
-		{
-			Set("R", "1");
-		}
+		void Reboot() const;
 
 		/// 
 		/// This command is used to change the connection parameters, interval, latency, and
@@ -569,6 +566,16 @@ namespace Bluetooth
 		{
 			return Set("Z", NULL);
 		}
+
+		/// 
+		/// Wait for any thing to be read until the maximum amount of calls has been reached
+		/// as indicated by 'timeout'. It effectively flushes the first bytes to arrive up to 
+		/// a count 64 bytes.
+		///
+		/// @param timeout		Maximum times it calls serial.Read
+		/// @return	true if timeout hasn't been reached		
+		/// 
+		bool WaitAnything(uint8_t timeout = 20) const;
 
 		enum BaudRate
 		{
