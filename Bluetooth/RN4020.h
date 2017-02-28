@@ -17,6 +17,7 @@ namespace Bluetooth
 		enum BaudRate;
 		enum Features;
 		enum Services;
+		class DiscoveredDevice;
 
 		explicit RN4020(const Serial::ISerial& serial)
 			: IBluetooth(serial)
@@ -32,11 +33,7 @@ namespace Bluetooth
 		/// @param baud		Baud rate to set
 		/// @return			true if operation completed succesfully	
 		/// 
-		bool SetBaudRate(BaudRate baud) const
-		{
-			char buf[] = {static_cast<char>(baud + '0'), '\0'};
-			return Set("SB", buf);
-		}
+		bool SetBaudRate(BaudRate baud) const;
 
 		/// 
 		/// This command gets the baud rate of the UART communication.
@@ -44,16 +41,7 @@ namespace Bluetooth
 		/// @param baud		Current baud rate
 		/// @return			true if operation completed succesfully			
 		/// 
-		bool GetBaudRate(BaudRate* baud) const
-		{
-			// 1 for result; 2 for \r\n
-			char buf[3];
-			if (!Get("GB", buf, sizeof(buf), NULL))
-				return false;
-
-			*baud = static_cast<BaudRate>(buf[0] - '0');
-			return true;
-		}
+		bool GetBaudRate(BaudRate* baud) const;
 
 		/// 
 		/// This command sets the supported features of current RN4020 module. The input
@@ -62,7 +50,7 @@ namespace Bluetooth
 		///	features is shown in Table 2 - 7.
 		///
 		/// @param features		Features to set
-		/// @return				true if operation completed succesfully
+		/// @return true if operation completed succesfully
 		/// 
 		bool SetFeatures(Features features) const
 		{
@@ -73,7 +61,7 @@ namespace Bluetooth
 		/// This command gets the current features
 		///
 		/// @param features		Current features
-		/// @return				true if operation completed succesfully
+		/// @return true if operation completed succesfully
 		/// 
 		bool GetFeatures(Features* features) const
 		{
@@ -88,7 +76,7 @@ namespace Bluetooth
 		///	Information Service can be set and saved into NVM.
 		///
 		/// @param version		Firmware version to set
-		/// @return				true if operation completed succesfully
+		/// @return true if operation completed succesfully
 		/// 
 		bool SetFirmwareVersion(const char* version) const
 		{
@@ -100,7 +88,7 @@ namespace Bluetooth
 		///
 		/// @param version		Current Firmware version
 		/// @param len			Length of buffer
-		/// @return				true if operation completed succesfully
+		/// @return true if operation completed succesfully
 		/// 
 		bool GetFirmwareVersion(char* version, uint8_t len) const
 		{
@@ -112,7 +100,7 @@ namespace Bluetooth
 		/// Information Service	
 		///
 		/// @param version		Firmware version to set
-		/// @return				true if operation completed succesfully
+		/// @return true if operation completed succesfully
 		/// 
 		bool SetHardwareVersion(const char* version) const
 		{
@@ -124,7 +112,7 @@ namespace Bluetooth
 		///
 		/// @param version		Current Hardware version
 		/// @param len			Length of buffer
-		/// @return				true if operation completed succesfully
+		/// @return true if operation completed succesfully
 		/// 
 		bool GetHardwareVersion(char* version, uint8_t len) const
 		{
@@ -136,7 +124,7 @@ namespace Bluetooth
 		/// Service.
 		///
 		/// @param model		Model name to set
-		/// @return				true if operation completed succesfully
+		/// @return true if operation completed succesfully
 		/// 
 		bool SetModel(const char* model) const
 		{
@@ -148,7 +136,7 @@ namespace Bluetooth
 		///
 		/// @param version		Current Model name
 		/// @param len			Length of buffer
-		/// @return				true if operation completed succesfully
+		/// @return true if operation completed succesfully
 		/// 
 		bool GetModel(char* version, uint8_t len) const
 		{
@@ -160,7 +148,7 @@ namespace Bluetooth
 		///	Information Service.
 		///
 		/// @param manufacturer	Manufacturer name to set
-		/// @return				true if operation completed succesfully
+		/// @return true if operation completed succesfully
 		/// 
 		bool SetManufacturer(const char* manufacturer) const
 		{
@@ -172,7 +160,7 @@ namespace Bluetooth
 		///
 		/// @param manufacturer		Current Manufacturer name
 		/// @param len			Length of buffer
-		/// @return				true if operation completed succesfully
+		/// @return true if operation completed succesfully
 		/// 
 		bool GetManufacturer(char* manufacturer, uint8_t len) const
 		{
@@ -234,7 +222,7 @@ namespace Bluetooth
 		///	Information Service.
 		///
 		/// @param revision		Revision to set
-		/// @return				true if operation completed succesfully
+		/// @return true if operation completed succesfully
 		/// 
 		bool SetSoftwareRevision(const char* revision) const
 		{
@@ -246,7 +234,7 @@ namespace Bluetooth
 		///
 		/// @param revision		Current revision
 		/// @param len			Length of buffer
-		/// @return				true if operation completed succesfully
+		/// @return true if operation completed succesfully
 		/// 
 		bool GetSoftwareRevision(char* revision, uint8_t len) const
 		{
@@ -258,7 +246,7 @@ namespace Bluetooth
 		/// Information Service.
 		///
 		/// @param serial		Serial to set
-		/// @return				true if operation completed succesfully
+		/// @return true if operation completed succesfully
 		/// 
 		bool SetSerialNumber(const char* serial) const
 		{
@@ -270,7 +258,7 @@ namespace Bluetooth
 		///
 		/// @param serial		Current serial
 		/// @param len			Length of buffer
-		/// @return				true if operation completed succesfully
+		/// @return true if operation completed succesfully
 		/// 
 		bool GetSerialNumber(char* serial, uint8_t len) const
 		{
@@ -285,7 +273,6 @@ namespace Bluetooth
 		///	with peripherals.For a peripheral device, the connection parameters are used to
 		///	request the connection update once a new connection is established.Acceptance of
 		///	the connection update from a peripheral device depends on the central device.\n
-		
 		///
 		/// @param interval		The time interval of communication between two
 		///						connected devices. (unit: 1.25 ms; default: 0x06)
@@ -294,15 +281,9 @@ namespace Bluetooth
 		/// 					central. (default: 0x00)
 		/// @param timeout		The maximum time between raw communications
 		///						before the link is considered lost. (unit: 10 ms; default: 0x64)
-		/// @return				true if operation completed succesfully				
+		/// @return true if operation completed succesfully			
 		/// 
-		bool SetTiming(uint16_t interval, uint16_t latency, uint16_t timeout) const
-		{
-			char buf[15] = { 0 };
-			snprintf(buf, 14, "%04X,%04X,%04X", interval, latency, timeout);
-
-			return Set("ST", buf);
-		}
+		bool SetTiming(uint16_t interval, uint16_t latency, uint16_t timeout) const;
 
 		/// 
 		///	Returns the desirable connection parameters	set by the SetTiming command when a connection 
@@ -312,36 +293,9 @@ namespace Bluetooth
 		/// @param interval		Current interval
 		/// @param latency		Current latency
 		/// @param timeout		Current timeout
-		/// @return				true if operation completed succesfully					
+		/// @return true if operation completed succesfully				
 		/// 
-		bool GetTiming(uint16_t* interval, uint16_t* latency, uint16_t* timeout) const
-		{
-			char buf[17] = { 0 };
-			if (!GetString("GT", buf, sizeof(buf) - 1))
-				return false;
-
-			char* end;
-
-#if ULONG_MAX >= 0xFFFFU
-			unsigned long val = strtoul(buf, &end, 16);
-			*interval = static_cast<uint16_t>(val);
-			val = strtoul(end + 1, &end, 16);
-			*latency = static_cast<uint16_t>(val);
-			val = strtoul(end + 1, NULL, 16);
-			*timeout = static_cast<uint16_t>(val);
-#elif ULLONG_MAX >= 0xFFFFU
-			unsigned long long val = strtoull(buf, &end, 16);
-			*interval = static_cast<uint16_t>(val);
-			val = strtoull(end + 1, &end, 16);
-			*latency = static_cast<uint16_t>(val);
-			val = strtoull(end + 1, NULL, 16);
-			*timeout = static_cast<uint16_t>(val);
-#else
-#error "unable to convert hex16 string to the largest integer (unsigned long long) type using std library (strtoull)"
-#endif
-
-			return true;
-		}
+		bool GetTiming(uint16_t* interval, uint16_t* latency, uint16_t* timeout) const;
 
 		/// 
 		/// This command sets the services supported by the device in a server role. The input
@@ -354,7 +308,7 @@ namespace Bluetooth
 		///	bitmap is provided in Table 2 - 8.
 		///
 		/// @param services		Services to set
-		/// @return				true if operation completed succesfully
+		/// @return true if operation completed succesfully
 		/// 
 		bool SetServerServices(Services services) const
 		{
@@ -365,13 +319,12 @@ namespace Bluetooth
 		/// This command gets the current Server Services
 		///
 		/// @param services		Current Server Services
-		/// @return				true if operation completed succesfully
+		/// @return true if operation completed succesfully
 		/// 
 		bool GetServerServices(Services* services) const
 		{
 			return GetHex32("GS", reinterpret_cast<uint32_t*>(services));
 		}
-
 
 		/// 
 		/// This command resets the configurations to the factory default at the next reboot. The
@@ -382,12 +335,239 @@ namespace Bluetooth
 		///	restored to factory default.
 		///
 		/// @param fullReset	if true, parameter is ‘2’
-		/// @return				true if operation completed succesfully
+		/// @return true if operation completed succesfully
 		/// 
-		bool ResetDefaults(bool fullReset = false) const
+		bool ResetDefaults(bool fullReset = false) const;
+
+		/// 
+		/// This command is only available to a device that operates as a peripheral in a
+		/// broadcaster role.\n
+		///	The “A” command is used to start advertisement.When the device acts in a
+		///	broadcaster role, which is enabled by the “N” command, the advertisement is an
+		///	undirected, unconnectable, manufacturer - specific broadcast message.The payload
+		///	of the message is set by the “N” command.\n
+		///	When the device acts in a peripheral role and it is not bonded, the advertisement is
+		///	undirected connectable, which means it is discoverable by all BTLE central devices.
+		///	When the device is bonded, the advertisement is directed if the no_direct_adv bit is
+		///	cleared using the “SR” command; otherwise, the advertisement is undirected if the
+		///	no_direct_adv bit is set.When direct advertisement is used, it is directed to the
+		///	bonded device so that other BTLE devices are not heard.
+		///
+		/// @param interval		interval between advertisements [ms]
+		/// @param window		total time to advertise, must be larger than interval [ms]
+		/// @return true if operation completed succesfully			
+		/// 
+		bool Advertise(uint16_t interval, uint16_t window) const;
+
+		/// 
+		/// This command is used to secure the connection and bond two connected devices.
+		///	The “B” command is only effective if two devices are already connected.Bonding can
+		///	be issued from either a central or a peripheral device.\n
+		///	If no input parameter is provided or the input parameter is ‘1’, the connection will be
+		///	secured and the peer device remembered.In this situation, the two devices are
+		///	considered bonded.If the input parameter is ‘0’, the connection is secured; however,
+		///	the peer device is not saved into NVM.In this situation, the connection is not bonded.\n
+		///	Once bonded, security information is saved to both ends of the connection if the
+		///	“do_not_save_bonding” setting is cleared using the “SR” command.Therefore,
+		///	reconnection between bonded devices does not require authentication, allowing
+		///	reconnection to be done in a short amount of time.For bonded peripheral devices,
+		///	advertisement can only be directed.As a result, bonded peripheral devices are not
+		///	available for inquiry or connection.
+		///
+		/// @param enable		Enables the bonding ‘1’
+		/// @return true if operation completed succesfully			
+		/// 
+		bool Bond(bool enable = true) const;
+
+		/// 
+		/// Note: This command is only available to devices in a central role\n\n
+		/// If the central device is already bonded with a peripheral, issuing the “E” command
+		/// without parameters will automatically start the process of connecting with the bonded
+		///	peripheral.Usually, the bonded central device needs to first issue the “E” command,
+		///	and then the bonded peripheral starts the directed advertisement.\n
+		///	If the central device is not bonded with the peripheral, two input parameters are
+		///	required to establish connection with a peripheral device.The first parameter is the
+		///	MAC address type, and second parameter is the MAC address of the peripheral
+		///	device.The MAC address type is either ‘0’ for public address or ‘1’ for a random
+		///	address.The address type will be available in the result of an inquiry using the “F”
+		///	command.The second parameter is a 6 - byte MAC address, which is also available
+		///	as a result of using the “F” command.
+		///
+		/// @param usePublicAddress		MAC address type
+		/// @param macAddress			6 - byte MAC adress
+		/// @return	true if operation completed succesfully					
+		/// 
+		bool Establish(bool usePublicAddress, uint8_t macAddress[6]) const;
+
+		/// 
+		/// This command is only available to a device in a central or observer role. For a central
+		/// device, it is used to query the peripheral devices before establishing a connection.
+		///	For the observer role, it is used to receive broadcast messages.\n
+		///	If no parameter is provided, the “F” command starts the active scan process with a
+		///	default scan interval of 375 milliseconds and a scan window of 250 milliseconds.The
+		///	user has the option to specify the scan interval and scan window as the first and
+		///	second parameter, respectively, as a 16 - bit hex value in milliseconds\n\n
+		/// If both interval and window '0' the defaults will be used.
+		///
+		/// @param interval		scan interval
+		/// @param window		windows interval
+		/// @return	true if operation completed succesfully				
+		/// 
+		bool Find(uint16_t interval, uint16_t window) const;
+
+		/// 
+		/// This command places the device into or out of an observer role.\n
+		/// If the input parameter is ‘1’, the RN4020 module enters Observer mode.After issuing
+		///	the “F” command, the RN4020 module is able to receive undirected, unconnectable
+		///	advertisements from broadcasters.If the input parameter is ‘0’, the RN4020 module
+		///	exits Observer mode.
+		///
+		/// @param enable		true means 't't, the module enters Observer mode
+		/// @return	true if operation completed succesfully					
+		/// 
+		bool Observer(bool enable = true) const;
+
+		/// 
+		/// This command is used to disconnect the active BTLE link. The “K” command can be
+		/// used in a central or peripheral role.An error is returned if there is no connection
+		///
+		/// @return	true if operation completed succesfully				
+		/// 
+		bool Kill() const
 		{
-			char buf[] = {(fullReset ? '2' : '1'), '\0'};
-			return Set("SF", buf);
+			return Set("K", NULL);
+		}
+
+		/// 
+		/// This command is used to obtain the signal strength of the last communication with
+		/// the peer device.The signal strength can be used to estimate the distance between
+		///	the device and its peer.\n
+		///	The return value of the “M” command is the Received Signal Strength Indication
+		///	(RSSI) in dBm.The accuracy of the result is within 6 dBm
+		///
+		/// @return				RSSI if connected, else 0
+		/// 
+		int8_t SignalStrength() const;
+
+		/// 
+		/// This command is used to place the RN4020 module into a broadcaster role and to
+		/// set the advertisement content.The input parameter is in hexadecimal format, with a
+		///	limit of up to 25 bytes.After setting the advertisement content, use the “A” command
+		///	to start advertisement.
+		///
+		/// @param data		data to broadcast
+		/// @param len		length of the data (maximum is 25)
+		/// @return	true if operation completed succesfully				
+		/// 
+		bool Broadcast(uint8_t data[25], uint8_t len) const;
+
+		/// 
+		/// This command places the module into a Dormant mode that consumes very little
+		/// power, and can be issued by either a central or peripheral device.\n
+		///	When the RN4020 module is in Dormant mode, power consumption is less than 700
+		///	nA.For comparison, power consumption is less than 5 µA in Deep Sleep mode.
+		///	Once the RN4020 module enters Dormant mode, the WS pin(pin 10, PIO1 / BLUE
+		///		LED) will assert low and all connection will be lost, as well as any data in RAM.To
+		///	exit Dormant mode and enter Deep Sleep, pull the WAKE_HW pin(pin 15) high.
+		///	Once the module has exited from Dormant mode, it behaves the same as after a
+		///	reboot.To exit Deep Sleep and enter Active mode, pull WAKE_SW high
+		///
+		void Dormant() const
+		{
+			Set("O", NULL);
+		}
+
+		/// 
+		/// This command forces a complete device reboot (similar to a power cycle). It has one
+		/// mandatory parameter of ‘1’.After rebooting the RN4020 module, all prior change
+		/// settings take effect.
+		/// 
+		void Reboot() const
+		{
+			Set("R", "1");
+		}
+
+		/// 
+		/// This command is used to change the connection parameters, interval, latency, and
+		/// time - out for the current connection.The parameters of the “T” command are lost after
+		///	a power cycle.All parameters are 16 - bit values in hexadecimal format.The “T”
+		///	command is only effective if an active connection exists when the command is
+		///	issued.\n
+		///	For the definitions, ranges and relationships of connection interval, latency, and
+		///	timeout, please refer to the “ST” command and Table 2 - 9 for details.\n
+		///	When a “T” command with valid parameters is issued by a peripheral device, a
+		///	minimum time - out interval is required between the two connection parameter update
+		///	requests.Also, whether to accept the connection parameter update request is up to
+		///	the central device.When the RN4020 module acts as a central device, it accepts all
+		///	valid connection parameter update requests.
+		///
+		/// @param interval		The time interval of communication between two
+		///						connected devices. (unit: 1.25 ms; default: 0x06)
+		/// @param latency		The number of consecutive connection events that
+		///						the peripheral does not need to communicate with
+		/// 					central. (default: 0x00)
+		/// @param timeout		The maximum time between raw communications
+		///						before the link is considered lost. (unit: 10 ms; default: 0x64)
+		/// @return true if operation completed succesfully			
+		/// 
+		bool UpdateTimings(uint16_t interval, uint16_t latency, uint16_t timeout) const;
+
+		/// 
+		/// This command removes the existing bonding. The “U” command not only removes
+		/// the bonding, but it also changes the advertisement method.If a peripheral is
+		///	advertising when a “U” command is issued, the RN4020 module will remove the
+		///	bonding, stop the directed advertisement, and then start undirected advertisement.
+		///
+		/// @return	true if operation completed succesfully		
+		/// 
+		bool Unbond() const
+		{
+			return Set("U", NULL);
+		}
+
+		/// 
+		/// This command displays the firmware version
+		///
+		/// @param buf		Buffer to store the firmware version
+		/// @param len		Length of the buffer
+		/// 
+		void FirmwareVersion(char* buf, uint8_t len) const
+		{
+			GetString("V", buf, len);
+		}
+
+		/// 
+		/// This command is only available to a central or observer device. For a central device,
+		/// it stops the inquiry process.For observers, it stops receiving broadcast messages.
+		///
+		/// @return	true if operation completed succesfully				
+		/// 
+		bool StopScan() const
+		{
+			return Set("X", NULL);
+		}
+
+		/// 
+		/// This command is only available to a peripheral or broadcaster device. It stops
+		/// advertisement that was started by an “A” command.\n\n
+		/// Note: SR,20000000 overrides this (FEATURE_AUTO_ADVERTISE)
+		///
+		/// @return	true if operation completed succesfully				
+		/// 
+		bool StopAdvertisement() const
+		{
+			return Set("Y", NULL);
+		}
+
+		/// 
+		/// This command is only available to a central device. It stops the connection process
+		/// that was started by an “E” command
+		///
+		/// @return	true if operation completed succesfully			
+		/// 
+		bool StopConnecting() const
+		{
+			return Set("Z", NULL);
 		}
 
 		enum BaudRate
@@ -554,7 +734,7 @@ namespace Bluetooth
 			SERVICE_SCAN_PARAMETERS = 0x00004000,
 			SERVICE_USER_DEFINED = 0x00000001
 		};
-
+		
 	private:
 		bool Set(const char* command, const char* param) const;
 		bool SetHex32(const char* command, uint32_t value) const;
