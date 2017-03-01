@@ -11,10 +11,27 @@ namespace Bluetooth
 	public:
 		explicit RN4020Device(const Serial::ISerial& serial);
 
-		void getMACAddress(uint8_t macAddress[]) const override;
+		void GetMACAddress(uint8_t macAddress[]) const override;
+		void GetName(char* name, uint8_t len) const override
+		{
+			m_RN4020.GetName(name, len);
+		}
+
+		void SetName(const char* name) const override
+		{
+			m_RN4020.SetName(name);
+		}
+
+		Role GetRole() const override
+		{
+			return m_Role;
+		}
+
+
 
 	private:
 		const Drivers::RN4020Driver m_RN4020;
+		Role m_Role;
 	};
 }
 

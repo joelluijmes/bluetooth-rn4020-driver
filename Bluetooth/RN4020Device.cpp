@@ -3,11 +3,11 @@
 namespace Bluetooth
 {
 	RN4020Device::RN4020Device(const Serial::ISerial& serial)
-		: m_RN4020(serial)
+		: m_RN4020(serial), m_Role(ROLE_NONE)
 	{
 	}
 
-	void RN4020Device::getMACAddress(uint8_t macAddress[6]) const
+	void RN4020Device::GetMACAddress(uint8_t macAddress[]) const
 	{
 		// BTA= + 6 byte mac address
 		// (Dump flushes internally so we don't need to read all of the dump)
@@ -29,4 +29,5 @@ namespace Bluetooth
 			ptr += 2;
 		}
 	}
+
 }

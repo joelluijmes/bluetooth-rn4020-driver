@@ -8,10 +8,25 @@ namespace Bluetooth
 	class BluetoothLEDevice
 	{
 	public:
+		enum Role;
+
 		virtual ~BluetoothLEDevice() = default;
 
-	
-		virtual void getMACAddress(uint8_t macAddress[]) const = 0;
+		virtual void GetMACAddress(uint8_t macAddress[]) const = 0;
+		
+		virtual void GetName(char* name, uint8_t len) const = 0;
+		virtual void SetName(const char* name) const = 0;
+		virtual Role GetRole() const = 0;
+
+
+		enum Role
+		{
+			ROLE_NONE,
+			NONE_PERIPHERAL,
+			ROLE_CENTRAL,
+			ROLE_OBSERVER,
+			ROLE_BROADCASTER
+		};
 	};
 }
 
