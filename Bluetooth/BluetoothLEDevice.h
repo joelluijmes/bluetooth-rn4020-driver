@@ -29,6 +29,7 @@ namespace Bluetooth
 		virtual bool SetServices(Services services) const = 0;
 		virtual bool StartAdvertise(bool directAdvertisementOnly = false, bool autoAdvertise = true) const = 0;
 
+
 		virtual Role GetRole() const
 		{
 			return m_Role;

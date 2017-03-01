@@ -2,6 +2,8 @@
 
 // std libraries
 #include <string.h>
+#include "../../Util.h"
+
 
 // RN4020Driver Constants
 #define MAX_SERIALIZED_NAME 15
@@ -193,6 +195,31 @@ namespace Bluetooth
 			}
 
 			return false;
+		}
+
+		RN4020Driver::DiscoveredDevice::DiscoveredDevice(const char* line)
+		{
+			const char* ptr = line;
+			Util::Parse6ByteMACAddressFromString(ptr, m_MACAddress);
+			ptr += 13; // skip the MACAddress + ','
+
+			m_RandomAddress = *ptr == 0;
+			ptr += 2; // skip the randomAddress + ','
+
+			memset(m_Name, 0, sizeof(m_Name));
+
+			size_t nameLength = strchr(ptr, ',') - ptr;
+			if (nameLength > 20) // make sure that we can't overflow
+				nameLength = 20;
+
+			memcpy(m_Name, ptr, nameLength);
+			ptr += nameLength + 1; // skip the name + ','
+
+			// todo primary service
+			ptr += 1;
+
+			long rssi = strtol(ptr, NULL, 16);
+			m_RSSI = static_cast<int8_t>(rssi);
 		}
 
 		bool RN4020Driver::Set(const char* command, const char* param) const

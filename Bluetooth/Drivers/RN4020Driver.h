@@ -741,6 +741,44 @@ namespace Bluetooth
 				FEATURE_MLDP_NO_STATUS = 0x00000400
 			};
 
+			class DiscoveredDevice
+			{
+			public:
+				explicit DiscoveredDevice(const char* line);
+
+				const uint8_t* GetMACAddress() const
+				{
+					return m_MACAddress;
+				}
+
+				uint8_t GetRandomAddress() const
+				{
+					return m_RandomAddress;
+				}
+
+				const char* GetName() const
+				{
+					return m_Name;
+				}
+
+				uint16_t GetPrimaryService() const
+				{
+					return m_PrimaryService;
+				}
+
+				int8_t GetRssi() const
+				{
+					return m_RSSI;
+				}
+
+			private:
+				uint8_t m_MACAddress[6];
+				uint8_t m_RandomAddress;
+				char m_Name[21];
+				uint16_t m_PrimaryService;
+				int8_t m_RSSI;
+			};
+
 		private:
 			bool Set(const char* command, const char* param) const;
 			bool SetHex32(const char* command, uint32_t value) const;

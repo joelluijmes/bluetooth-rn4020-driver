@@ -1,5 +1,6 @@
 ﻿#include "RN4020Device.h"
 #include <ctime>
+#include "../Util.h"
 
 
 using namespace Bluetooth::Drivers;
@@ -21,19 +22,8 @@ namespace Bluetooth
 			return false;
 
 		// skip BTA=
-		char* ptr = buf + 4;
-		char tmp[3] = { 0 };
-		for (uint8_t i = 0; i < 6; ++i)
-		{
-			// read the two hex nybbles
-			tmp[0] = ptr[0];
-			tmp[1] = ptr[1];
-
-			unsigned long val = strtoul(tmp, NULL, 16);
-			macAddress[i] = static_cast<uint8_t>(val);
-
-			ptr += 2;
-		}
+		const char* ptr = buf + 4;
+		Util::Parse6ByteMACAddressFromString(ptr, macAddress);
 
 		return true;
 	}
