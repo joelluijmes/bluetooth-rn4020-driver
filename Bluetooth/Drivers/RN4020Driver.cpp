@@ -153,21 +153,25 @@ namespace Bluetooth
 			return Set("N", buf);
 		}
 
-		void RN4020Driver::Dump(char* buf, uint8_t len) const
+		bool RN4020Driver::Dump(char* buf, uint8_t len) const
 		{
-			GetString("D", buf, len, false);
+			if (!GetString("D", buf, len, false))
+				return false;
+
 			m_Serial.Flush();
+			return true;
 		}
 
-		void RN4020Driver::Reboot() const
+		bool RN4020Driver::Reboot() const
 		{
 			char buf[9] = { 0 }; // Reboot + \r\n
 
 			// use Get to flush the incomming Reboot text
-			Get("R,1", buf, sizeof(buf), NULL);
+			if (!Get("R,1", buf, sizeof(buf), NULL))
+				return false;
 
 			// when it is booted it puts out CMD
-			WaitAnything();
+			return WaitAnything();
 		}
 
 		bool RN4020Driver::UpdateTimings(uint16_t interval, uint16_t latency, uint16_t timeout) const

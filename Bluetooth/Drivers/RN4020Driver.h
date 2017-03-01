@@ -16,8 +16,9 @@ namespace Bluetooth
 		public:
 			enum BaudRate;
 			enum Features;
-			enum Services;
 			class DiscoveredDevice;
+
+			typedef uint32_t Services;
 
 			explicit RN4020Driver(const Serial::ISerial& serial)
 				: m_Serial(serial)
@@ -312,7 +313,7 @@ namespace Bluetooth
 			/// 
 			bool SetServerServices(Services services) const
 			{
-				return SetHex32("SS", static_cast<uint32_t>(services));
+				return SetHex32("SS", services);
 			}
 
 			/// 
@@ -495,14 +496,14 @@ namespace Bluetooth
 			/// @param buf		Buffer where to dump to
 			/// @param len		Length of the buffer
 			/// 
-			void Dump(char* buf, uint8_t len) const;
+			bool Dump(char* buf, uint8_t len) const;
 
 			/// 
 			/// This command forces a complete device reboot (similar to a power cycle). It has one
 			/// mandatory parameter of ‘1’.After rebooting the RN4020 module, all prior change
 			/// settings take effect.
 			/// 
-			void Reboot() const;
+			bool Reboot() const;
 
 			/// 
 			/// This command is used to change the connection parameters, interval, latency, and
@@ -548,9 +549,9 @@ namespace Bluetooth
 			/// @param buf		Buffer to store the firmware version
 			/// @param len		Length of the buffer
 			/// 
-			void FirmwareVersion(char* buf, uint8_t len) const
+			bool FirmwareVersion(char* buf, uint8_t len) const
 			{
-				GetString("V", buf, len);
+				return GetString("V", buf, len);
 			}
 
 			/// 
@@ -738,28 +739,6 @@ namespace Bluetooth
 				///	End”, is in the UART output
 				/// 
 				FEATURE_MLDP_NO_STATUS = 0x00000400
-			};
-
-			enum Services
-			{
-				SERVICE_DEVICE_INFORMATION = 0x80000000,
-				SERVICE_BATTYER = 0x40000000,
-				SERVICE_HEART_RATE = 0x20000000,
-				SERVICE_HEALTH_THERMOMETER = 0x10000000,
-				SERVICE_GLUCOSE = 0x08000000,
-				SERVICE_BLOOD_PRESSURE = 0x04000000,
-				SERVICE_RUNNING_SPEED_CADENCE = 0x02000000,
-				SERVICE_CYCLING_SPEED_CADENCE = 0x01000000,
-				SERVICE_CURRENT_TIME = 0x00800000,
-				SERVICE_NEXT_DST_CHANGE = 0x00400000,
-				SERVICE_REFERENCE_TIME_UPDATE = 0x00200000,
-				SERVICE_LINK_LOSS = 0x00100000,
-				SERVICE_IMMEDIATE_ALERT = 0x00080000,
-				SERVICE_TX_POWER = 0x00040000,
-				SERVICE_ALERT_NOTIFICATION = 0x00020000,
-				SERVICE_PHONE_ALERT_STATUS = 0x00010000,
-				SERVICE_SCAN_PARAMETERS = 0x00004000,
-				SERVICE_USER_DEFINED = 0x00000001
 			};
 
 		private:
