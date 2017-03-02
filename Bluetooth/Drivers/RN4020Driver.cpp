@@ -3,6 +3,8 @@
 // std libraries
 #include <string.h>
 #include "../../Util.h"
+#include <cstdio>
+#include <cstdlib>
 
 
 // RN4020Driver Constants
@@ -323,45 +325,19 @@ namespace Bluetooth
 			return Set("Z", NULL);
 		}
 
-		bool RN4020Driver::ReadScan(DiscoveredDevice* devices, uint8_t len) const
+		bool RN4020Driver::ReadScan(BluetoothLEPeripheral* devices, uint8_t len, uint8_t* found) const
 		{
 			char buf[64];
-			bool foundADevice = false;
 
 			int32_t received;
 			uint8_t index = 0;
 			while (index < len && WaitAnything(buf, sizeof(buf), &received, 10))
-			{
-				foundADevice = true;
-				devices[index] = DiscoveredDevice(buf);
-			}
+				devices[index++] = ParseScanLine(buf);
 
-			return foundADevice;
-		}
+			if (found)
+				*found = index;
 
-		RN4020Driver::DiscoveredDevice::DiscoveredDevice(const char* line)
-		{
-			const char* ptr = line;
-			Util::Parse6ByteMACAddressFromString(ptr, m_MACAddress);
-			ptr += 13; // skip the MACAddress + ','
-
-			m_RandomAddress = *ptr == 0;
-			ptr += 2; // skip the randomAddress + ','
-
-			memset(m_Name, 0, sizeof(m_Name));
-
-			size_t nameLength = strchr(ptr, ',') - ptr;
-			if (nameLength > 20) // make sure that we can't overflow
-				nameLength = 20;
-
-			memcpy(m_Name, ptr, nameLength);
-			ptr += nameLength + 1; // skip the name + ','
-
-			// todo primary service
-			ptr += 1;
-
-			long rssi = strtol(ptr, NULL, 16);
-			m_RSSI = static_cast<int8_t>(rssi);
+			return true;
 		}
 
 		bool RN4020Driver::Set(const char* command, const char* param) const
@@ -462,6 +438,35 @@ namespace Bluetooth
 			}
 
 			return false;
+		}
+
+		BluetoothLEPeripheral RN4020Driver::ParseScanLine(const char* line) const
+		{
+			const char* ptr = line;
+
+			uint8_t macAddress[6];
+			Util::Parse6ByteMACAddressFromString(ptr, macAddress);
+			ptr += 13; // skip the MACAddress + ','
+
+			uint8_t randomAddress = *ptr == 0;
+			ptr += 2; // skip the randomAddress + ','
+
+			size_t nameLength = strchr(ptr, ',') - ptr;
+			if (nameLength > 20) // make sure that we can't overflow
+				nameLength = 20;
+
+			char name[21] = { 0 };
+			memcpy(name, ptr, nameLength);
+			ptr += nameLength + 1; // skip the name + ','
+
+			// todo primary service
+			ptr += 1;
+
+			int8_t rssi;
+			long val = strtol(ptr, NULL, 16);
+			rssi = static_cast<int8_t>(val);
+
+			return BluetoothLEPeripheral(macAddress, randomAddress, name, 0, rssi);
 		}
 	}
 }

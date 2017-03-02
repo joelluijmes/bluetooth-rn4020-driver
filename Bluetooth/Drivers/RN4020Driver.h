@@ -1,12 +1,8 @@
 ﻿#ifndef RN4020_H_
 #define RN4020_H_
 
-#include "../../Serial/ISerial.h"
-
-#include <cstdio>
-#include <stdlib.h>
 #include "../BluetoothLEPeripheral.h"
-
+#include "../../Serial/ISerial.h"
 
 namespace Bluetooth
 {
@@ -17,7 +13,6 @@ namespace Bluetooth
 		public:
 			enum BaudRate;
 			enum Features;
-			class DiscoveredDevice;
 
 			typedef uint32_t Services;
 
@@ -505,8 +500,8 @@ namespace Bluetooth
 			/// 
 			bool StopConnecting() const;
 
-			bool ReadScan(DiscoveredDevice* devices, uint8_t len) const;
-			
+			bool ReadScan(BluetoothLEPeripheral* devices, uint8_t len, uint8_t* found) const;
+
 			enum BaudRate
 			{
 				RN4020_BAUD_2400 = 0,
@@ -649,45 +644,7 @@ namespace Bluetooth
 				/// 
 				FEATURE_MLDP_NO_STATUS = 0x00000400
 			};
-
-			class DiscoveredDevice : BluetoothLEPeripheral
-			{
-			public:
-				explicit DiscoveredDevice(const char* line);
-
-				const uint8_t* GetMACAddress() const override
-				{
-					return m_MACAddress;
-				}
-
-				uint8_t GetRandomAddress() const override
-				{
-					return m_RandomAddress;
-				}
-
-				const char* GetName() const override
-				{
-					return m_Name;
-				}
-
-				uint16_t GetPrimaryService() const override
-				{
-					return m_PrimaryService;
-				}
-
-				int8_t GetRssi() const override
-				{
-					return m_RSSI;
-				}
-
-			private:
-				uint8_t m_MACAddress[6];
-				uint8_t m_RandomAddress;
-				char m_Name[21];
-				uint16_t m_PrimaryService;
-				int8_t m_RSSI;
-			};
-
+			
 		private:
 			bool Set(const char* command, const char* param) const;
 			bool SetHex32(const char* command, uint32_t value) const;
@@ -695,9 +652,11 @@ namespace Bluetooth
 			bool Get(const char* command, char* buf, uint8_t len, uint8_t* received) const;
 			bool GetHex32(const char* command, uint32_t* value) const;
 			bool GetString(const char* command, char* buf, uint8_t len, bool stripNewLine = true) const;
-			
+
 			bool WaitAnything(uint8_t timeout = 20) const;
 			bool WaitAnything(char* buf, uint32_t len, int32_t* received, uint8_t timeout = 20) const;
+
+			BluetoothLEPeripheral ParseScanLine(const char* line) const;
 
 			const Serial::ISerial& m_Serial;
 		};

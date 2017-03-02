@@ -29,7 +29,7 @@ namespace Bluetooth
 		virtual bool SetName(const char* name) const = 0;
 		virtual bool SetServices(Services services) const = 0;
 		virtual bool StartAdvertise(bool autoAdvertise = true) const = 0;
-		virtual bool ScanPeripherals(BluetoothLEPeripheral* peripherals, uint8_t len) const = 0;
+		virtual bool ScanPeripherals(BluetoothLEPeripheral* peripherals, uint8_t len, uint8_t* found) const = 0;
 
 		virtual Role GetRole() const
 		{

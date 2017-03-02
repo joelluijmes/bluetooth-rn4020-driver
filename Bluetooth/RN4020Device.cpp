@@ -63,6 +63,19 @@ namespace Bluetooth
 		return m_RN4020.Advertise(GetInterval(), GetTimeout());
 	}
 
+	bool RN4020Device::ScanPeripherals(BluetoothLEPeripheral* peripherals, uint8_t len, uint8_t* found) const
+	{
+		if (!CheckReboot())
+			return false;
+
+		if (!m_RN4020.Find(0, 0))
+			return false;
+
+		m_RN4020.ReadScan(peripherals, len, found);
+		
+		return m_RN4020.StopScan();
+	}
+
 	bool RN4020Device::CheckReboot() const
 	{
 		if (!m_ShouldReboot)
