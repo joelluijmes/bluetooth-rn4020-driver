@@ -2,7 +2,6 @@
 
 // std libraries
 #include <string.h>
-#include "../../Util.h"
 #include <cstdio>
 #include <cstdlib>
 
@@ -213,11 +212,10 @@ namespace Bluetooth
 			return Set("B", buf);
 		}
 
-		bool RN4020Driver::Establish(bool usePublicAddress, const uint8_t macAddress[6]) const
+		bool RN4020Driver::Establish(bool usePublicAddress, const MACAddress& macAddress) const
 		{
 			char buf[15] = {(usePublicAddress ? '0' : '1'), ','};
-			for (uint8_t i = 0; i < 6; ++i)
-				snprintf(buf + i * 2 + 2, 3, "%02X", macAddress[i]);
+			macAddress.ToCharArray(buf + 2, 13, '\0');
 
 			return Set("E", buf);
 		}
@@ -463,8 +461,7 @@ namespace Bluetooth
 		{
 			const char* ptr = line;
 
-			uint8_t macAddress[6];
-			Util::Parse6ByteMACAddressFromString(ptr, macAddress);
+			MACAddress address(ptr);
 			ptr += 13; // skip the MACAddress + ','
 
 			uint8_t randomAddress = *ptr == 0;
@@ -485,7 +482,7 @@ namespace Bluetooth
 			long val = strtol(ptr, NULL, 16);
 			rssi = static_cast<int8_t>(val);
 
-			return BluetoothLEPeripheral(macAddress, randomAddress, name, 0, rssi);
+			return BluetoothLEPeripheral(address, randomAddress, name, 0, rssi);
 		}
 	}
 }

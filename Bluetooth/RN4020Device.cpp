@@ -1,6 +1,5 @@
 ﻿#include "RN4020Device.h"
 #include <ctime>
-#include "../Util.h"
 
 
 using namespace Bluetooth::Drivers;
@@ -13,7 +12,7 @@ namespace Bluetooth
 		m_RN4020.ResetDefaults();
 	}
 
-	bool RN4020Device::GetMACAddress(uint8_t macAddress[]) const
+	bool RN4020Device::GetMACAddress(MACAddress* address) const
 	{
 		// BTA= + 6 byte mac address
 		// (Dump flushes internally so we don't need to read all of the dump)
@@ -23,7 +22,7 @@ namespace Bluetooth
 
 		// skip BTA=
 		const char* ptr = buf + 4;
-		Util::Parse6ByteMACAddressFromString(ptr, macAddress);
+		*address = MACAddress(ptr);
 
 		return true;
 	}

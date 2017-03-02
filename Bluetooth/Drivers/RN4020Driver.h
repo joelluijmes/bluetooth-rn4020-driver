@@ -335,7 +335,7 @@ namespace Bluetooth
 			/// @param macAddress			6 - byte MAC adress
 			/// @return	true if operation completed succesfully					
 			/// 
-			bool Establish(bool usePublicAddress, const uint8_t macAddress[]) const;
+			bool Establish(bool usePublicAddress, const MACAddress& macAddress) const;
 
 			/// 
 			/// This command is only available to a device in a central or observer role. For a central

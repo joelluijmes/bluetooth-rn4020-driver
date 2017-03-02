@@ -2,65 +2,39 @@
 #define BLUETOOTH_LE_PERIPHERAL_H_
 
 #include <cstring>
-#include <inttypes.h>
+#include "MACAddress.h"
 
 class BluetoothLEPeripheral
 {
 public:
-
 	BluetoothLEPeripheral(): m_RandomAddress(0), m_PrimaryService(0), m_RSSI(0)
 	{
-		memset(m_MACAddress, 0, sizeof(m_MACAddress));
 		memset(m_Name, 0, sizeof(m_Name));
 	}
 
-	BluetoothLEPeripheral(const BluetoothLEPeripheral& a_Other)
-		: m_RandomAddress(a_Other.m_RandomAddress),
-		  m_PrimaryService(a_Other.m_PrimaryService),
-		  m_RSSI(a_Other.m_RSSI)
+	BluetoothLEPeripheral(const MACAddress& macAddress, uint8_t a_RandomAddress)
+		: m_MACAddress(macAddress),
+		  m_RandomAddress(a_RandomAddress),
+		  m_PrimaryService(0),
+		  m_RSSI(0)
 	{
-		memcpy(m_MACAddress, a_Other.m_MACAddress, sizeof(m_MACAddress));
-		memcpy(m_Name, a_Other.m_Name, sizeof(m_Name));
-	}
-
-	BluetoothLEPeripheral& operator=(const BluetoothLEPeripheral& a_Other)
-	{
-		if (this == &a_Other)
-			return *this;
-
-		m_RandomAddress = a_Other.m_RandomAddress;
-		m_PrimaryService = a_Other.m_PrimaryService;
-		m_RSSI = a_Other.m_RSSI;
-		memcpy(m_MACAddress, a_Other.m_MACAddress, sizeof(m_MACAddress));
-		memcpy(m_Name, a_Other.m_Name, sizeof(m_Name));
-
-		return *this;
-	}
-
-	BluetoothLEPeripheral(uint8_t a_MACAddress[6],
-		uint8_t a_RandomAddress)
-		: m_RandomAddress(a_RandomAddress),
-		m_PrimaryService(0),
-		m_RSSI(0)
-	{
-		memcpy(m_MACAddress, a_MACAddress, sizeof(m_MACAddress));
 		memset(m_Name, 0, sizeof(m_Name));
 	}
-	
-	BluetoothLEPeripheral(uint8_t a_MACAddress[6],
+
+	BluetoothLEPeripheral(const MACAddress& macAddress,
 	                      uint8_t a_RandomAddress,
 	                      char a_Name[21],
 	                      uint16_t a_PrimaryService,
 	                      int8_t a_Rssi)
-		: m_RandomAddress(a_RandomAddress),
+		: m_MACAddress(macAddress),
+		  m_RandomAddress(a_RandomAddress),
 		  m_PrimaryService(a_PrimaryService),
 		  m_RSSI(a_Rssi)
 	{
-		memcpy(m_MACAddress, a_MACAddress, sizeof(m_MACAddress));
 		memcpy(m_Name, a_Name, sizeof(m_Name));
 	}
 
-	const uint8_t* GetMACAddress() const
+	const MACAddress& GetMACAddress() const
 	{
 		return m_MACAddress;
 	}
@@ -86,7 +60,7 @@ public:
 	}
 
 private:
-	uint8_t m_MACAddress[6];
+	MACAddress m_MACAddress;
 	uint8_t m_RandomAddress;
 	char m_Name[21];
 	uint16_t m_PrimaryService;
