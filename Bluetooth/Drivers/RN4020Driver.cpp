@@ -213,10 +213,11 @@ namespace Bluetooth
 			return Set("B", buf);
 		}
 
-		bool RN4020Driver::Establish(bool usePublicAddress, uint8_t macAddress[6]) const
+		bool RN4020Driver::Establish(bool usePublicAddress, const uint8_t macAddress[6]) const
 		{
-			char buf[9] = {(usePublicAddress ? '0' : '1'), ','};
-			memcpy(buf + 2, macAddress, 6);
+			char buf[15] = {(usePublicAddress ? '0' : '1'), ','};
+			for (uint8_t i = 0; i < 6; ++i)
+				snprintf(buf + i * 2 + 2, 3, "%02X", macAddress[i]);
 
 			return Set("E", buf);
 		}
@@ -289,7 +290,10 @@ namespace Bluetooth
 				return false;
 
 			// when it is booted it puts out CMD
-			return WaitAnything();
+			if (!WaitString(buf, sizeof(buf)))
+				return false;
+
+			return strncmp(buf, "CMD", 3) == 0;
 		}
 
 		bool RN4020Driver::UpdateTimings(uint16_t interval, uint16_t latency, uint16_t timeout) const
@@ -325,13 +329,13 @@ namespace Bluetooth
 			return Set("Z", NULL);
 		}
 
-		bool RN4020Driver::ReadScan(BluetoothLEPeripheral* devices, uint8_t len, uint8_t* found) const
+		bool RN4020Driver::ReadScan(BluetoothLEPeripheral* devices, uint8_t len, uint8_t* found, uint8_t timeout) const
 		{
 			char buf[64];
 
 			int32_t received;
 			uint8_t index = 0;
-			while (index < len && WaitAnything(buf, sizeof(buf), &received, 10))
+			while (index < len && WaitString(buf, sizeof(buf), true, timeout))
 				devices[index++] = ParseScanLine(buf);
 
 			if (found)
@@ -360,7 +364,7 @@ namespace Bluetooth
 			// (don't forget the trailling \r\n)
 			char buf[5] = {0};
 			int32_t received = m_Serial.Receive(buf, sizeof(buf));
-			if (received == -1)
+			if (received <= 0)
 				return false;
 
 			return strncmp(buf, "AOK", 3) == 0;
@@ -374,18 +378,21 @@ namespace Bluetooth
 			return Set(command, buf);
 		}
 
-		bool RN4020Driver::Get(const char* command, char* buf, uint8_t len, uint8_t* received) const
+		bool RN4020Driver::Get(const char* command, char* buf, uint32_t len, int32_t* received) const
 		{
-			if (m_Serial.Send(command, strlen(command)) == -1)
-				return false;
-			if (m_Serial.Send("\r\n", 2) == -1)
-				return false;
+			if (command)
+			{
+				if (m_Serial.Send(command, strlen(command)) == -1)
+					return false;
+				if (m_Serial.Send("\r\n", 2) == -1)
+					return false;
+			}
 
 			int32_t tmp = m_Serial.Receive(buf, len);
 			if (received)
 				*received = tmp;
 
-			return tmp != -1;
+			return tmp > 0;
 		}
 
 		bool RN4020Driver::GetHex32(const char* command, uint32_t* value) const
@@ -406,9 +413,14 @@ namespace Bluetooth
 			return true;
 		}
 
+		bool RN4020Driver::GetString(char* buf, uint8_t len, bool stripNewLine) const
+		{
+			return GetString(NULL, buf, len, stripNewLine);
+		}
+
 		bool RN4020Driver::GetString(const char* command, char* buf, uint8_t len, bool stripNewLine) const
 		{
-			uint8_t received;
+			int32_t received;
 			if (!Get(command, buf, len, &received))
 				return false;
 
@@ -429,11 +441,18 @@ namespace Bluetooth
 		{
 			for (uint8_t i = 0; i < timeout; ++i)
 			{
-				int32_t tmp = m_Serial.Receive(buf, len);
-				if (received)
-					*received = tmp;
+				if (Get(NULL, buf, len, received))
+					return true;
+			}
 
-				if (tmp > 0)
+			return false;
+		}
+
+		bool RN4020Driver::WaitString(char* buf, uint32_t len, bool stripNewLine, uint8_t timeout) const
+		{
+			for (uint8_t i = 0; i < timeout; ++i)
+			{
+				if (GetString(buf, len, stripNewLine))
 					return true;
 			}
 

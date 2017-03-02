@@ -21,6 +21,7 @@ namespace Bluetooth
 		bool SetServices(Services services) const override;
 		bool StartAdvertise(bool autoAdvertise = true) const override;
 		bool ScanPeripherals(BluetoothLEPeripheral* peripherals, uint8_t len, uint8_t* found) const override;
+		bool Connect(const BluetoothLEPeripheral& peripheral) override;
 
 	private:
 		const Drivers::RN4020Driver m_RN4020;

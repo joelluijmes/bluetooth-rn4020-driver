@@ -36,6 +36,16 @@ public:
 
 		return *this;
 	}
+
+	BluetoothLEPeripheral(uint8_t a_MACAddress[6],
+		uint8_t a_RandomAddress)
+		: m_RandomAddress(a_RandomAddress),
+		m_PrimaryService(0),
+		m_RSSI(0)
+	{
+		memcpy(m_MACAddress, a_MACAddress, sizeof(m_MACAddress));
+		memset(m_Name, 0, sizeof(m_Name));
+	}
 	
 	BluetoothLEPeripheral(uint8_t a_MACAddress[6],
 	                      uint8_t a_RandomAddress,

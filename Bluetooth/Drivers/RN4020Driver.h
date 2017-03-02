@@ -6,10 +6,14 @@
 
 namespace Bluetooth
 {
+	class RN4020Device;
+
 	namespace Drivers
 	{
 		class RN4020Driver
 		{
+			friend class RN4020Device;
+
 		public:
 			enum BaudRate;
 			enum Features;
@@ -331,7 +335,7 @@ namespace Bluetooth
 			/// @param macAddress			6 - byte MAC adress
 			/// @return	true if operation completed succesfully					
 			/// 
-			bool Establish(bool usePublicAddress, uint8_t macAddress[6]) const;
+			bool Establish(bool usePublicAddress, const uint8_t macAddress[]) const;
 
 			/// 
 			/// This command is only available to a device in a central or observer role. For a central
@@ -500,7 +504,21 @@ namespace Bluetooth
 			/// 
 			bool StopConnecting() const;
 
-			bool ReadScan(BluetoothLEPeripheral* devices, uint8_t len, uint8_t* found) const;
+			/// 
+			/// After issueuing the Find command use this to read the scanned devices. It relies on
+			/// the serial.Read to timeout after a certain time, use the timeout argument to specify
+			/// how many it will be called until it stops trying. For example if the serial timeout
+			/// is 100 ms it blocks up to timeout x 100ms.\n
+			/// It also stops when the len has been reached to indicate the length of the array.
+			///
+			/// @param devices		Scanned devices
+			/// @param len			Maximum length of devices to store
+			/// @param found		Devices found
+			/// @return	true if operation completed succesfully					
+			/// 
+			bool ReadScan(BluetoothLEPeripheral* devices, uint8_t len, uint8_t* found, uint8_t timeout = 10) const;
+
+			
 
 			enum BaudRate
 			{
@@ -649,12 +667,14 @@ namespace Bluetooth
 			bool Set(const char* command, const char* param) const;
 			bool SetHex32(const char* command, uint32_t value) const;
 
-			bool Get(const char* command, char* buf, uint8_t len, uint8_t* received) const;
+			bool Get(const char* command, char* buf, uint32_t len, int32_t* received) const;
 			bool GetHex32(const char* command, uint32_t* value) const;
+			bool GetString(char* buf, uint8_t len, bool stripNewLine = true) const;
 			bool GetString(const char* command, char* buf, uint8_t len, bool stripNewLine = true) const;
 
 			bool WaitAnything(uint8_t timeout = 20) const;
 			bool WaitAnything(char* buf, uint32_t len, int32_t* received, uint8_t timeout = 20) const;
+			bool WaitString(char* buf, uint32_t len, bool stripNewLine = true, uint8_t timeout = 20) const;
 
 			BluetoothLEPeripheral ParseScanLine(const char* line) const;
 

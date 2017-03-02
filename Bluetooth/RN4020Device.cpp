@@ -76,6 +76,22 @@ namespace Bluetooth
 		return m_RN4020.StopScan();
 	}
 
+	bool RN4020Device::Connect(const BluetoothLEPeripheral& peripheral)
+	{
+		if (!m_RN4020.Establish(peripheral.GetRandomAddress() == 0, peripheral.GetMACAddress()))
+			return false;
+
+		char buf[12]; // 'Connected\r\n'
+		if (!m_RN4020.WaitString(buf, sizeof(buf)))
+			return false;
+
+		if (strncmp(buf, "Connected", 9) != 0)
+			return false;
+
+		SetConnectedPeripheral(peripheral);
+		return true;
+	}
+
 	bool RN4020Device::CheckReboot() const
 	{
 		if (!m_ShouldReboot)

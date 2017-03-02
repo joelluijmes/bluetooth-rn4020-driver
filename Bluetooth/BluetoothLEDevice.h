@@ -30,8 +30,14 @@ namespace Bluetooth
 		virtual bool SetServices(Services services) const = 0;
 		virtual bool StartAdvertise(bool autoAdvertise = true) const = 0;
 		virtual bool ScanPeripherals(BluetoothLEPeripheral* peripherals, uint8_t len, uint8_t* found) const = 0;
+		virtual bool Connect(const BluetoothLEPeripheral& peripheral) = 0;
 
-		virtual Role GetRole() const
+		const BluetoothLEPeripheral& GetConnectedPeripheral() const
+		{
+			return	m_ConnectedPeripheral;
+		}
+
+		Role GetRole() const
 		{
 			return m_Role;
 		}
@@ -76,6 +82,11 @@ namespace Bluetooth
 		};
 
 	protected:
+		void SetConnectedPeripheral(const BluetoothLEPeripheral& peripheral)
+		{
+			m_ConnectedPeripheral = peripheral;
+		}
+
 		void SetRole(Role role)
 		{
 			m_Role = role;
@@ -86,6 +97,7 @@ namespace Bluetooth
 		uint16_t m_Window;
 		uint16_t m_Timeout;
 		Role m_Role;
+		BluetoothLEPeripheral m_ConnectedPeripheral;
 	};
 }
 
