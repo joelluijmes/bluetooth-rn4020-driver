@@ -27,7 +27,7 @@ namespace Bluetooth
 		virtual bool GetName(char* name, uint8_t len) const = 0;
 		virtual bool SetName(const char* name) const = 0;
 		virtual bool SetServices(Services services) const = 0;
-		virtual bool StartAdvertise(bool directAdvertisementOnly = false, bool autoAdvertise = true) const = 0;
+		virtual bool StartAdvertise(bool autoAdvertise = true) const = 0;
 
 
 		virtual Role GetRole() const

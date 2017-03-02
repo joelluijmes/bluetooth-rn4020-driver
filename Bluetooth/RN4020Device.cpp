@@ -46,11 +46,9 @@ namespace Bluetooth
 		return true;
 	}
 
-	bool RN4020Device::StartAdvertise(bool directAdvertisementOnly, bool autoAdvertise) const
+	bool RN4020Device::StartAdvertise(bool autoAdvertise) const
 	{
 		uint32_t features = 0;
-		if (!directAdvertisementOnly)
-			features |= RN4020Driver::FEATURE_NO_DIRECT_ADVERTISEMENT;
 		if (autoAdvertise)
 			features |= RN4020Driver::FEATURE_AUTO_ADVERTISE;
 		if (!m_RN4020.SetFeatures(static_cast<RN4020Driver::Features>(features)))

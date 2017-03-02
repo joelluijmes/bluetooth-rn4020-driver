@@ -20,7 +20,7 @@ namespace Bluetooth
 		bool SetName(const char* name) const override;
 		bool SetServices(Services services) const override;
 
-		bool StartAdvertise(bool directAdvertisementOnly = false, bool autoAdvertise = true) const override;
+		bool StartAdvertise(bool autoAdvertise = true) const override;
 
 	private:
 		const Drivers::RN4020Driver m_RN4020;
