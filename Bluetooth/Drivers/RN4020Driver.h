@@ -5,6 +5,7 @@
 
 #include <cstdio>
 #include <stdlib.h>
+#include "../BluetoothLEPeripheral.h"
 
 
 namespace Bluetooth
@@ -20,10 +21,7 @@ namespace Bluetooth
 
 			typedef uint32_t Services;
 
-			explicit RN4020Driver(const Serial::ISerial& serial)
-				: m_Serial(serial)
-			{
-			}
+			explicit RN4020Driver(const Serial::ISerial& serial);
 
 			/// 
 			/// This command sets the baud rate of the UART communication. The input parameter
@@ -53,10 +51,7 @@ namespace Bluetooth
 			/// @param features		Features to set
 			/// @return true if operation completed succesfully
 			/// 
-			bool SetFeatures(Features features) const
-			{
-				return SetHex32("SR", static_cast<uint32_t>(features));
-			}
+			bool SetFeatures(Features features) const;
 
 			/// 
 			/// This command gets the current features
@@ -64,10 +59,7 @@ namespace Bluetooth
 			/// @param features		Current features
 			/// @return true if operation completed succesfully
 			/// 
-			bool GetFeatures(Features* features) const
-			{
-				return GetHex32("GR", reinterpret_cast<uint32_t*>(features));
-			}
+			bool GetFeatures(Features* features) const;
 
 			/// 
 			/// This command sets the value of the firmware revision characteristic in the Device
@@ -79,10 +71,7 @@ namespace Bluetooth
 			/// @param version		Firmware version to set
 			/// @return true if operation completed succesfully
 			/// 
-			bool SetFirmwareVersion(const char* version) const
-			{
-				return Set("SDF", version);
-			}
+			bool SetFirmwareVersion(const char* version) const;
 
 			/// 
 			/// This command gets the current firmware version.
@@ -91,10 +80,7 @@ namespace Bluetooth
 			/// @param len			Length of buffer
 			/// @return true if operation completed succesfully
 			/// 
-			bool GetFirmwareVersion(char* version, uint8_t len) const
-			{
-				return GetString("GDF", version, len);
-			}
+			bool GetFirmwareVersion(char* version, uint8_t len) const;
 
 			/// 
 			/// This command sets the value of the hardware revision characteristics in the Device
@@ -103,10 +89,7 @@ namespace Bluetooth
 			/// @param version		Firmware version to set
 			/// @return true if operation completed succesfully
 			/// 
-			bool SetHardwareVersion(const char* version) const
-			{
-				return Set("SDH", version);
-			}
+			bool SetHardwareVersion(const char* version) const;
 
 			/// 
 			/// This command gets the current hardware version.
@@ -115,10 +98,7 @@ namespace Bluetooth
 			/// @param len			Length of buffer
 			/// @return true if operation completed succesfully
 			/// 
-			bool GetHardwareVersion(char* version, uint8_t len) const
-			{
-				return GetString("SDH", version, len);
-			}
+			bool GetHardwareVersion(char* version, uint8_t len) const;
 
 			/// 
 			/// This command sets the value of the model characteristics in the Device Information
@@ -127,10 +107,7 @@ namespace Bluetooth
 			/// @param model		Model name to set
 			/// @return true if operation completed succesfully
 			/// 
-			bool SetModel(const char* model) const
-			{
-				return Set("SDM", model);
-			}
+			bool SetModel(const char* model) const;
 
 			/// 
 			/// This command gets the current model name.
@@ -139,10 +116,7 @@ namespace Bluetooth
 			/// @param len			Length of buffer
 			/// @return true if operation completed succesfully
 			/// 
-			bool GetModel(char* version, uint8_t len) const
-			{
-				return GetString("GDM", version, len);
-			}
+			bool GetModel(char* version, uint8_t len) const;
 
 			/// 
 			/// This command sets the value of the manufacturer name characteristics in the Device
@@ -151,10 +125,7 @@ namespace Bluetooth
 			/// @param manufacturer	Manufacturer name to set
 			/// @return true if operation completed succesfully
 			/// 
-			bool SetManufacturer(const char* manufacturer) const
-			{
-				return Set("SDN", manufacturer);
-			}
+			bool SetManufacturer(const char* manufacturer) const;
 
 			/// 
 			/// This command gets the current manufacturer name.
@@ -163,10 +134,7 @@ namespace Bluetooth
 			/// @param len			Length of buffer
 			/// @return true if operation completed succesfully
 			/// 
-			bool GetManufacturer(char* manufacturer, uint8_t len) const
-			{
-				return GetString("GDN", manufacturer, len);
-			}
+			bool GetManufacturer(char* manufacturer, uint8_t len) const;
 
 			/// 
 			/// This command sets the device name, where <string> is up to 20 alphanumeric
@@ -175,10 +143,7 @@ namespace Bluetooth
 			/// @param name		Device name to set
 			/// @return			true if operation completed succesfully			
 			/// 
-			bool SetName(const char* name) const
-			{
-				return Set("SN", name);
-			}
+			bool SetName(const char* name) const;
 
 			/// 
 			/// 
@@ -187,10 +152,7 @@ namespace Bluetooth
 			/// @param len		Length of buffer
 			/// @return			true if operation completed succesfully
 			///
-			bool GetName(char* name, uint8_t len) const
-			{
-				return GetString("GN", name, len);
-			}
+			bool GetName(char* name, uint8_t len) const;
 
 			/// 
 			/// This command sets the serialized Bluetooth-friendly name of the device, where
@@ -201,10 +163,7 @@ namespace Bluetooth
 			/// @param name		Bluetooth-friendly name
 			/// @return			true if operation completed succesfully
 			/// 
-			bool SetSerializedName(const char* name) const
-			{
-				return Set("S-", name);
-			}
+			bool SetSerializedName(const char* name) const;
 
 			/// 
 			/// This command gets the serialized Bluetooth-friendly name of the device.
@@ -213,10 +172,7 @@ namespace Bluetooth
 			/// @param len		Length of buffer
 			/// @return			true if operation completed succesfully
 			/// 
-			bool GetSerializedName(char* name, uint8_t len) const
-			{
-				return GetString("G-", name, len);
-			}
+			bool GetSerializedName(char* name, uint8_t len) const;
 
 			/// 
 			/// This command sets the value of the software revision characteristics in the Device
@@ -225,10 +181,7 @@ namespace Bluetooth
 			/// @param revision		Revision to set
 			/// @return true if operation completed succesfully
 			/// 
-			bool SetSoftwareRevision(const char* revision) const
-			{
-				return Set("SDR", revision);
-			}
+			bool SetSoftwareRevision(const char* revision) const;
 
 			/// 
 			/// This command gets the current software revision.
@@ -237,10 +190,7 @@ namespace Bluetooth
 			/// @param len			Length of buffer
 			/// @return true if operation completed succesfully
 			/// 
-			bool GetSoftwareRevision(char* revision, uint8_t len) const
-			{
-				return GetString("GDR", revision, len);
-			}
+			bool GetSoftwareRevision(char* revision, uint8_t len) const;
 
 			/// 
 			/// This command sets the value of the serial number characteristics in the Device
@@ -249,10 +199,7 @@ namespace Bluetooth
 			/// @param serial		Serial to set
 			/// @return true if operation completed succesfully
 			/// 
-			bool SetSerialNumber(const char* serial) const
-			{
-				return Set("SDS", serial);
-			}
+			bool SetSerialNumber(const char* serial) const;
 
 			/// 
 			/// This command gets the current serial number.
@@ -261,10 +208,7 @@ namespace Bluetooth
 			/// @param len			Length of buffer
 			/// @return true if operation completed succesfully
 			/// 
-			bool GetSerialNumber(char* serial, uint8_t len) const
-			{
-				return GetString("GDS", serial, len);
-			}
+			bool GetSerialNumber(char* serial, uint8_t len) const;
 
 			/// 
 			/// This command sets the initial connection parameters for future connections. The
@@ -311,10 +255,7 @@ namespace Bluetooth
 			/// @param services		Services to set
 			/// @return true if operation completed succesfully
 			/// 
-			bool SetServerServices(Services services) const
-			{
-				return SetHex32("SS", services);
-			}
+			bool SetServerServices(Services services) const;
 
 			/// 
 			/// This command gets the current Server Services
@@ -322,10 +263,7 @@ namespace Bluetooth
 			/// @param services		Current Server Services
 			/// @return true if operation completed succesfully
 			/// 
-			bool GetServerServices(Services* services) const
-			{
-				return GetHex32("GS", reinterpret_cast<uint32_t*>(services));
-			}
+			bool GetServerServices(Services* services) const;
 
 			/// 
 			/// This command resets the configurations to the factory default at the next reboot. The
@@ -434,10 +372,7 @@ namespace Bluetooth
 			///
 			/// @return	true if operation completed succesfully				
 			/// 
-			bool Kill() const
-			{
-				return Set("K", NULL);
-			}
+			bool Kill() const;
 
 			/// 
 			/// This command is used to obtain the signal strength of the last communication with
@@ -473,10 +408,7 @@ namespace Bluetooth
 			///	Once the module has exited from Dormant mode, it behaves the same as after a
 			///	reboot.To exit Deep Sleep and enter Active mode, pull WAKE_SW high
 			///
-			void Dormant() const
-			{
-				Set("O", NULL);
-			}
+			void Dormant() const;
 
 			/// 
 			/// This command displays critical information about the current device over the UART.
@@ -538,10 +470,7 @@ namespace Bluetooth
 			///
 			/// @return	true if operation completed succesfully		
 			/// 
-			bool Unbond() const
-			{
-				return Set("U", NULL);
-			}
+			bool Unbond() const;
 
 			/// 
 			/// This command displays the firmware version
@@ -549,10 +478,7 @@ namespace Bluetooth
 			/// @param buf		Buffer to store the firmware version
 			/// @param len		Length of the buffer
 			/// 
-			bool FirmwareVersion(char* buf, uint8_t len) const
-			{
-				return GetString("V", buf, len);
-			}
+			bool FirmwareVersion(char* buf, uint8_t len) const;
 
 			/// 
 			/// This command is only available to a central or observer device. For a central device,
@@ -560,10 +486,7 @@ namespace Bluetooth
 			///
 			/// @return	true if operation completed succesfully				
 			/// 
-			bool StopScan() const
-			{
-				return Set("X", NULL);
-			}
+			bool StopScan() const;
 
 			/// 
 			/// This command is only available to a peripheral or broadcaster device. It stops
@@ -572,10 +495,7 @@ namespace Bluetooth
 			///
 			/// @return	true if operation completed succesfully				
 			/// 
-			bool StopAdvertisement() const
-			{
-				return Set("Y", NULL);
-			}
+			bool StopAdvertisement() const;
 
 			/// 
 			/// This command is only available to a central device. It stops the connection process
@@ -583,21 +503,10 @@ namespace Bluetooth
 			///
 			/// @return	true if operation completed succesfully			
 			/// 
-			bool StopConnecting() const
-			{
-				return Set("Z", NULL);
-			}
+			bool StopConnecting() const;
 
-			/// 
-			/// Wait for any thing to be read until the maximum amount of calls has been reached
-			/// as indicated by 'timeout'. It effectively flushes the first bytes to arrive up to 
-			/// a count 64 bytes.
-			///
-			/// @param timeout		Maximum times it calls serial.Read
-			/// @return	true if timeout hasn't been reached		
-			/// 
-			bool WaitAnything(uint8_t timeout = 20) const;
-
+			bool ReadScan(DiscoveredDevice* devices, uint8_t len) const;
+			
 			enum BaudRate
 			{
 				RN4020_BAUD_2400 = 0,
@@ -741,32 +650,32 @@ namespace Bluetooth
 				FEATURE_MLDP_NO_STATUS = 0x00000400
 			};
 
-			class DiscoveredDevice
+			class DiscoveredDevice : BluetoothLEPeripheral
 			{
 			public:
 				explicit DiscoveredDevice(const char* line);
 
-				const uint8_t* GetMACAddress() const
+				const uint8_t* GetMACAddress() const override
 				{
 					return m_MACAddress;
 				}
 
-				uint8_t GetRandomAddress() const
+				uint8_t GetRandomAddress() const override
 				{
 					return m_RandomAddress;
 				}
 
-				const char* GetName() const
+				const char* GetName() const override
 				{
 					return m_Name;
 				}
 
-				uint16_t GetPrimaryService() const
+				uint16_t GetPrimaryService() const override
 				{
 					return m_PrimaryService;
 				}
 
-				int8_t GetRssi() const
+				int8_t GetRssi() const override
 				{
 					return m_RSSI;
 				}
@@ -786,6 +695,10 @@ namespace Bluetooth
 			bool Get(const char* command, char* buf, uint8_t len, uint8_t* received) const;
 			bool GetHex32(const char* command, uint32_t* value) const;
 			bool GetString(const char* command, char* buf, uint8_t len, bool stripNewLine = true) const;
+			
+			bool WaitAnything(uint8_t timeout = 20) const;
+			bool WaitAnything(char* buf, uint32_t len, int32_t* received, uint8_t timeout = 20) const;
+
 			const Serial::ISerial& m_Serial;
 		};
 	}
