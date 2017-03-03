@@ -2,7 +2,7 @@
 #define RN4020_H_
 
 #include "../Models/BluetoothLEPeripheral.h"
-#include "../../Serial/ISerial.h"
+#include "../Serial/ISerial.h"
 #include "../Models/ServerCharacteristic.h"
 #include "../Models/ClientCharacteristic.h"
 

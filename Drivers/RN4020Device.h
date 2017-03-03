@@ -1,9 +1,10 @@
 #ifndef RN4020_DEVICE_H_
 #define RN4020_DEVICE_H_
 
-#include "BluetoothLEDevice.h"
-#include "Drivers/RN4020Driver.h"
-#include "Models/Services.h"
+#include "RN4020Driver.h"
+#include "../Serial/ISerial.h"
+#include "../BluetoothLEDevice.h"
+#include "../Models/Services.h"
 
 class MACAddress;
 
