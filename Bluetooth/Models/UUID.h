@@ -53,7 +53,27 @@ namespace Bluetooth
 		void ToCharArray(char* buf, uint8_t len) const;
 
 	private:
-		uint8_t m_UUID[16];
+		// 0000xxxx - 0000 - 1000 - 8000 - 00805F9B34FB
+		uint8_t m_UUID[16] = 
+		{
+			0x00,
+			0x00,
+			0x00, // place holder
+			0x00, // place holder
+			0x00,
+			0x00,
+			0x10,
+			0x00,
+			0x80,
+			0x00,
+			0x00,
+			0x80,
+			0x5F,
+			0x9B,
+			0x34,
+			0xFB
+		};
+
 		uint16_t m_ShortUUID;
 	};
 }

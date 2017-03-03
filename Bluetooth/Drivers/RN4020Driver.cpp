@@ -464,7 +464,7 @@ namespace Bluetooth
 			MACAddress address(ptr);
 			ptr += 13; // skip the MACAddress + ','
 
-			uint8_t randomAddress = *ptr == 0;
+			bool randomAddress = *ptr == 0;
 			ptr += 2; // skip the randomAddress + ','
 
 			size_t nameLength = strchr(ptr, ',') - ptr;
@@ -476,13 +476,14 @@ namespace Bluetooth
 			ptr += nameLength + 1; // skip the name + ','
 
 			// todo primary service
+			UUID uuid;
 			ptr += 1;
 
 			int8_t rssi;
 			long val = strtol(ptr, NULL, 16);
 			rssi = static_cast<int8_t>(val);
 
-			return BluetoothLEPeripheral(address, randomAddress, name, 0, rssi);
+			return BluetoothLEPeripheral(address, randomAddress, name, uuid, rssi);
 		}
 	}
 }

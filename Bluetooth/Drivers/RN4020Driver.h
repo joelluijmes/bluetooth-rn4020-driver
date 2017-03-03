@@ -1,7 +1,7 @@
 ﻿#ifndef RN4020_H_
 #define RN4020_H_
 
-#include "../BluetoothLEPeripheral.h"
+#include "../Models/BluetoothLEPeripheral.h"
 #include "../../Serial/ISerial.h"
 
 namespace Bluetooth

@@ -21,22 +21,8 @@ namespace Bluetooth
 		// Or, to put it more simply, the 16-bit Attribute UUID replaces the x’s in the follow- ing:
 		// 0000xxxx - 0000 - 1000 - 8000 - 00805F9B34FB
 
-		m_UUID[0] = 0x00;
-		m_UUID[1] = 0x00;
 		m_UUID[2] = (shortUUID >> 8) & 0xFF;
 		m_UUID[3] = (shortUUID) & 0xFF;
-		m_UUID[4] = 0x00;
-		m_UUID[5] = 0x00;
-		m_UUID[6] = 0x10;
-		m_UUID[7] = 0x00;
-		m_UUID[8] = 0x80;
-		m_UUID[9] = 0x00;
-		m_UUID[10] = 0x00;
-		m_UUID[11] = 0x80;
-		m_UUID[12] = 0x5F;
-		m_UUID[13] = 0x9B;
-		m_UUID[14] = 0x34;
-		m_UUID[15] = 0xFB;
 	}
 
 	void UUID::ToCharArray(char* buf, uint8_t len) const

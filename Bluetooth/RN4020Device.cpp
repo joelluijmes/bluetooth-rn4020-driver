@@ -27,6 +27,11 @@ namespace Bluetooth
 		return true;
 	}
 
+	bool RN4020Device::GetName(char* name, uint8_t len) const
+	{
+		return m_RN4020.GetName(name, len);
+	}
+
 	bool RN4020Device::SetName(const char* name) const
 	{
 		if (!m_RN4020.SetName(name))
@@ -62,7 +67,7 @@ namespace Bluetooth
 		return m_RN4020.Advertise(GetInterval(), GetTimeout());
 	}
 
-	bool RN4020Device::ScanPeripherals(BluetoothLEPeripheral* peripherals, uint8_t len, uint8_t* found) const
+	bool RN4020Device::ScanPeripherals(BluetoothLEPeripheral* peripherals, uint8_t len, uint8_t* found, uint8_t timeout) const
 	{
 		if (!CheckReboot())
 			return false;
@@ -70,14 +75,15 @@ namespace Bluetooth
 		if (!m_RN4020.Find(0, 0))
 			return false;
 
-		m_RN4020.ReadScan(peripherals, len, found);
+		if (!m_RN4020.ReadScan(peripherals, len, found, timeout))
+			return false;
 		
 		return m_RN4020.StopScan();
 	}
 
-	bool RN4020Device::Connect(const BluetoothLEPeripheral& peripheral)
+	bool RN4020Device::ConnectImpl(const BluetoothLEPeripheral& peripheral)
 	{
-		if (!m_RN4020.Establish(peripheral.GetRandomAddress() == 0, peripheral.GetMACAddress()))
+		if (!m_RN4020.Establish(!peripheral.GetIsRandomMAC(), peripheral.GetMACAddress()))
 			return false;
 
 		char buf[12]; // 'Connected\r\n'
@@ -87,7 +93,7 @@ namespace Bluetooth
 		if (strncmp(buf, "Connected", 9) != 0)
 			return false;
 
-		SetConnectedPeripheral(peripheral);
+		
 		return true;
 	}
 
