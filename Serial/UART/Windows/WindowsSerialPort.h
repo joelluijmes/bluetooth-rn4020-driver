@@ -2,7 +2,7 @@
 #define WINDOWS_SERIAL_PORT_H_
 
 // user libraries
-#include "../../Serial/IUartDriver.h"
+#include "../IUartDriver.h"
 
 // std libraries
 #include <string>
