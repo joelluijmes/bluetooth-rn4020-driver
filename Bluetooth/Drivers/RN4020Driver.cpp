@@ -342,6 +342,123 @@ namespace Bluetooth
 			return true;
 		}
 
+		bool RN4020Driver::ListServerCharacteristics(LongServerCharacteristic* characteristics, uint8_t len, uint8_t* listed) const
+		{
+			// TODO: Use circular buffer
+			char buf[256];
+			
+			int32_t received;
+			if (!Get("LS", buf, sizeof(buf) - 1, &received))
+				return false;
+			buf[received] = 0;
+
+			char* line = buf;
+			char* ptr = strchr(line, '\r');
+			
+			uint8_t index = 0;
+			UUID serviceUuid;
+			while (ptr && index < len && strncmp(line, "END", 3) != 0)
+			{
+				// null terminates the \r\n
+				*ptr++ = 0;
+				*ptr++ = 0;
+
+				size_t match = strncmp(line, "  ", 2);
+
+				// new service 
+				if (match != 0)
+				{
+					serviceUuid = UUID(line);
+				}
+				else if (match == 0) // characteristic
+				{
+					// skip the two spaces
+					line += 2;
+
+					char* token = strtok(line, ",");
+					// first token is characteristic UUID
+					UUID characteristicUUID(token);
+					token = strtok(NULL, ",");
+
+					// second token is handle
+					uint16_t handle = static_cast<uint16_t>(strtoul(token, NULL, 16));
+					token = strtok(NULL, ",");
+
+					// last V if value; C if configuration
+					bool isConfiguration = token[0] == 'C';
+
+					characteristics[index++] = LongServerCharacteristic(serviceUuid, characteristicUUID, handle, isConfiguration);
+				}
+
+				// find the next line
+				line = ptr;
+				ptr = strchr(line, '\r');
+			}
+
+			if (listed)
+				*listed = index;
+
+			return true;
+		}
+
+		bool RN4020Driver::ListClientCharacteristics(LongClientCharacteristic* characteristics, uint8_t len, uint8_t* listed) const
+		{
+			char buf[256];
+
+			int32_t received;
+			if (!Get("LC", buf, sizeof(buf) - 1, &received))
+				return false;
+			buf[received] = 0;
+
+			char* line = buf;
+			char* ptr = strchr(line, '\r');
+
+			uint8_t index = 0;
+			UUID serviceUuid;
+			while (ptr && index < len && strncmp(line, "END", 3) != 0)
+			{
+				// null terminates the \r\n
+				*ptr++ = 0;
+				*ptr++ = 0;
+
+				size_t match = strncmp(line, "  ", 2);
+
+				// new service 
+				if (match != 0)
+				{
+					serviceUuid = UUID(line);
+				}
+				else if (match == 0) // characteristic
+				{
+					// skip the two spaces
+					line += 2;
+
+					char* token = strtok(line, ",");
+					// first token is characteristic UUID
+					UUID characteristicUUID(token);
+					token = strtok(NULL, ",");
+
+					// second token is handle
+					uint16_t handle = static_cast<uint16_t>(strtoul(token, NULL, 16));
+					token = strtok(NULL, ",");
+
+					// last is the property
+					CharacteristicProperty characteristicProperty = static_cast<CharacteristicProperty>(strtoul(token, NULL, 16));
+
+					characteristics[index++] = LongClientCharacteristic(serviceUuid, characteristicUUID, handle, characteristicProperty);
+				}
+
+				// find the next line
+				line = ptr;
+				ptr = strchr(line, '\r');
+			}
+
+			if (listed)
+				*listed = index;
+
+			return true;
+		}
+
 		bool RN4020Driver::Set(const char* command, const char* param) const
 		{
 			if (m_Serial.Send(command, strlen(command)) == -1)

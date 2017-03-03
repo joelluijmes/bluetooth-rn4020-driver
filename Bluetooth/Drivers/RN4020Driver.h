@@ -3,6 +3,8 @@
 
 #include "../Models/BluetoothLEPeripheral.h"
 #include "../../Serial/ISerial.h"
+#include "../Models/ServerCharacteristic.h"
+#include "../Models/ClientCharacteristic.h"
 
 namespace Bluetooth
 {
@@ -518,7 +520,10 @@ namespace Bluetooth
 			/// 
 			bool ReadScan(BluetoothLEPeripheral* devices, uint8_t len, uint8_t* found, uint8_t timeout = 10) const;
 
-			
+			bool ListServerCharacteristics(LongServerCharacteristic* characteristics, uint8_t len, uint8_t* listed) const;
+
+			bool ListClientCharacteristics(LongClientCharacteristic* characteristics, uint8_t len, uint8_t* listed) const;
+
 
 			enum BaudRate
 			{

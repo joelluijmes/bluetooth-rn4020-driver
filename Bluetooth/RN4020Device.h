@@ -78,6 +78,11 @@ namespace Bluetooth
 		/// 
 		bool ScanPeripherals(BluetoothLEPeripheral* peripherals, uint8_t len, uint8_t* found, uint8_t timeout = 10) const override;
 
+		const Drivers::RN4020Driver& GetDriver() const
+		{
+			return m_RN4020;
+		}
+
 	protected:
 		bool ConnectImpl(const BluetoothLEPeripheral& peripheral) override;
 

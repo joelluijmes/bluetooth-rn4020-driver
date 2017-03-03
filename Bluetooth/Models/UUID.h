@@ -28,6 +28,16 @@ namespace Bluetooth
 		/// 
 		explicit UUID(uint16_t shortUUID);
 
+		/// 
+		/// Constructs a UUID from hex string
+		///
+		/// @param hexString		Hex string of UUID, either 16 or 128 bit
+		/// 
+		explicit UUID(const char* hexString);
+
+		UUID(const UUID& a_Other);
+
+		UUID& operator=(const UUID& a_Other);
 
 		/// 
 		/// Gets the short 16 - bit UUID, only valid when constructed from UUID(uint16_t)
