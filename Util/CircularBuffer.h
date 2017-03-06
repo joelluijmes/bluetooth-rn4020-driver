@@ -1,8 +1,6 @@
 #ifndef CIRCULAR_BUFFER_H_
 #define CIRCULAR_BUFFER_H_
 
-#include <inttypes.h>
-
 namespace Util
 {
 	/// 
@@ -33,7 +31,7 @@ namespace Util
 		/// @param len		Length of the data
 		/// @return	amount of data stored (can be less than len if insufficient space is available)			
 		/// 
-		TType Store(const uint8_t* data, TType len);
+		TType Store(const char* data, TType len);
 
 		/// 
 		/// Fetches data from the circular buffer
@@ -42,7 +40,7 @@ namespace Util
 		/// @param len		Length of data to fetch from buffer
 		/// @return	amount of data loaded (can be less than len if insufficient data is stored)					
 		/// 
-		TType Load(uint8_t* data, TType len);
+		TType Load(char* data, TType len);
 
 		/// 
 		/// Gets the amount of bytes stored in the buffer
@@ -72,7 +70,7 @@ namespace Util
 	private:
 		TType m_StoreIndex;
 		TType m_LoadIndex;
-		uint8_t m_Buffer[TLen];
+		char m_Buffer[TLen];
 		const TType MASK = TLen - 1;
 	};
 
@@ -84,7 +82,7 @@ namespace Util
 	}
 
 	template <typename TType, TType TLen>
-	TType CircularBuffer<TType, TLen>::Store(const uint8_t* data, TType len)
+	TType CircularBuffer<TType, TLen>::Store(const char* data, TType len)
 	{
 		for (TType i = 0; i < len; ++i)
 		{
@@ -101,7 +99,7 @@ namespace Util
 	}
 
 	template <typename TType, TType TLen>
-	TType CircularBuffer<TType, TLen>::Load(uint8_t* data, TType len)
+	TType CircularBuffer<TType, TLen>::Load(char* data, TType len)
 	{
 		TType index = m_LoadIndex;
 		TType i;

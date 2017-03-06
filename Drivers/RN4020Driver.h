@@ -588,6 +588,16 @@ namespace Bluetooth
 			///  
 			bool ListClientCharacteristics(const UUID& serviceUUID, LongClientCharacteristic* characteristics, uint8_t len, uint8_t* listed) const;
 			
+			bool WriteServerUUID(uint16_t uuid, uint8_t value) const;
+
+			bool WriteServerHandle(uint16_t handle, uint8_t value) const;
+
+			bool ReadServerUUID(uint16_t uuid, uint8_t* value) const;
+
+			bool ReadServerHandle(uint16_t handle, uint8_t* value) const;
+
+
+
 			enum BaudRate
 			{
 				RN4020_BAUD_2400 = 0,
@@ -736,6 +746,12 @@ namespace Bluetooth
 
 			bool Set(const char* command, const char* param) const;
 			bool SetHex32(const char* command, uint32_t value) const;
+			
+			template<typename T>
+			bool WriteCharacteristicInteger(const char* command, uint16_t handle, T value) const;
+
+			template<typename T>
+			bool ReadCharacteristicInteger(const char* command, uint16_t param, T* value) const;
 
 			bool Get(char* buf, uint32_t len, int32_t* received = NULL) const;
 			bool Get(const char* command, char* buf, uint32_t len, int32_t* received = NULL) const;
@@ -767,6 +783,32 @@ namespace Bluetooth
 
 		template<>
 		LongClientCharacteristic ParseCharacteristic<LongClientCharacteristic>(const UUID& serviceUUID, char* line);
+
+		template <typename T>
+		bool RN4020Driver::WriteCharacteristicInteger(const char* command, uint16_t handle, T value) const
+		{
+			// handle + T + 0
+			char buf[4 + 2 * sizeof(T) + 2] = { 0 };
+			snprintf(buf, sizeof(buf), "%04X,%0*X", handle, sizeof(T) * 2, value);
+
+			return Set(command, buf);
+		}
+
+		template <typename T>
+		bool RN4020Driver::ReadCharacteristicInteger(const char* command, uint16_t param, T* value) const
+		{
+			// max command lenght is 4 CUWC/CUWV + param + 0
+			char buf[9] = { 0 };
+			snprintf(buf, sizeof(buf), "%.4s,%04X", command, param);
+
+			// largest integer returned is 32 bits
+			uint32_t x;
+			if (!GetHex32(buf, &x))
+				return false;
+
+			*value = static_cast<T>(x);
+			return true;
+		}
 
 		template <typename T>
 		bool RN4020Driver::ListCharacteristics(const UUID* targetUUID, const char* command, T* characteristics, uint8_t len, uint8_t* listed) const

@@ -377,6 +377,26 @@ namespace Bluetooth
 			return ListCharacteristics(&serviceUUID, "LC", characteristics, len, listed);
 		}
 
+		bool RN4020Driver::WriteServerUUID(uint16_t uuid, uint8_t value) const
+		{
+			return WriteCharacteristicInteger("SUW", uuid, value);
+		}
+
+		bool RN4020Driver::WriteServerHandle(uint16_t handle, uint8_t value) const
+		{
+			return WriteCharacteristicInteger("SHW", handle, value);
+		}
+
+		bool RN4020Driver::ReadServerUUID(uint16_t uuid, uint8_t* value) const
+		{
+			return ReadCharacteristicInteger("SUR", uuid, value);
+		}
+
+		bool RN4020Driver::ReadServerHandle(uint16_t handle, uint8_t* value) const
+		{
+			return ReadCharacteristicInteger("SHR", handle, value);
+		}
+
 		bool RN4020Driver::Set(const char* command, const char* param) const
 		{
 			if (m_Serial.SendRaw(command, strlen(command)) == -1)
@@ -411,7 +431,7 @@ namespace Bluetooth
 
 			return Set(command, buf);
 		}
-
+		
 		bool RN4020Driver::Get(char* buf, uint32_t len, int32_t* received) const
 		{
 			return Get(NULL, buf, len, received);
@@ -435,7 +455,7 @@ namespace Bluetooth
 		bool RN4020Driver::GetHex32(const char* command, uint32_t* value) const
 		{
 			char buf[11] = {0};
-			if (!Get("GS", buf, sizeof(buf) - 1))
+			if (!Get(command, buf, sizeof(buf) - 1))
 				return false;
 
 #if ULONG_MAX >= 0xFFFFFFFFU
@@ -486,7 +506,9 @@ namespace Bluetooth
 			if (listed)
 				*listed = index;
 
-			return strncmp(line, "END", 3) == 0;
+			// make sure the buffers are emtpy on early exit
+			m_Serial.Flush();
+			return true;
 		}
 
 		BluetoothLEPeripheral RN4020Driver::ParseScanLine(const char* line) const
