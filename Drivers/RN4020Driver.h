@@ -523,16 +523,69 @@ namespace Bluetooth
 			/// 
 			bool ReadScan(BluetoothLEPeripheral* devices, uint8_t len, uint8_t* found, uint8_t timeout = 10) const;
 
+			/// 
+			/// Requests Server Services (LS command) and stores the UUID of each service in an array.
+			///
+			/// @param services		Array of service UUID to store
+			/// @param len			Length of the array
+			/// @param listed		Amount of services found
+			/// @return	true if operation completed succesfully			
+			/// 
 			bool ListServerServices(UUID* services, uint8_t len, uint8_t* listed) const;
 
+			/// 
+			/// Requests Client Services (LC command) and stores the UUID of each service in an array.\n
+			/// Note: must be connected to a client.
+			///
+			/// @param services		Array of service UUID to store
+			/// @param len			Length of the array
+			/// @param listed		Amount of services found
+			/// @return	true if operation completed succesfully			
+			/// 
 			bool ListClientServices(UUID* services, uint8_t len, uint8_t* listed) const;
 
+			/// 
+			/// Request Server Services (LS) and stores all characteristics in an array.
+			///
+			/// @param characteristics		Array of characteristics to store
+			/// @param len					Length of the array
+			/// @param listed				Amount of characteristics found
+			/// @return	true if operation completed succesfully				
+			/// 
 			bool ListServerCharacteristics(LongServerCharacteristic* characteristics, uint8_t len, uint8_t* listed) const;
 
+			/// 
+			/// Request Client Services (LC) and stores all characteristics in an array.\n
+			/// Note: must be connected to a client.
+			///
+			/// @param characteristics		Array of characteristics to store
+			/// @param len					Length of the array
+			/// @param listed				Amount of characteristics found
+			/// @return	true if operation completed succesfully				
+			/// 
 			bool ListClientCharacteristics(LongClientCharacteristic* characteristics, uint8_t len, uint8_t* listed) const;
 
+			/// 
+			/// Request Server Services (LS) and stores all characteristics of serviceUUID in an array.
+			///
+			/// @param serviceUUID			UUID of service to list characteristics from
+			/// @param characteristics		Array of characteristics to store
+			/// @param len					Length of the array
+			/// @param listed				Amount of characteristics found
+			/// @return	true if operation completed succesfully				
+			///  
 			bool ListServerCharacteristics(const UUID& serviceUUID, LongServerCharacteristic* characteristics, uint8_t len, uint8_t* listed) const;
 
+			/// 
+			/// Request Client Services (LC) and stores all characteristics of serviceUUID in an array.\n
+			/// Note: must be connected to a client.
+			///
+			/// @param serviceUUID			UUID of service to list characteristics from
+			/// @param characteristics		Array of characteristics to store
+			/// @param len					Length of the array
+			/// @param listed				Amount of characteristics found
+			/// @return	true if operation completed succesfully				
+			///  
 			bool ListClientCharacteristics(const UUID& serviceUUID, LongClientCharacteristic* characteristics, uint8_t len, uint8_t* listed) const;
 			
 			enum BaudRate
