@@ -698,6 +698,8 @@ namespace Bluetooth
 			return NULL;
 		}
 
+		void ParseCharacteristic(char** token, UUID* characteristicUUID, uint16_t* handle);
+
 		template<>
 		LongServerCharacteristic ParseCharacteristic<LongServerCharacteristic>(const UUID& serviceUUID, char* line);
 

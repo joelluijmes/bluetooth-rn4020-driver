@@ -476,23 +476,30 @@ namespace Bluetooth
 			return BluetoothLEPeripheral(address, randomAddress, name, uuid, rssi);
 		}
 
+		void ParseCharacteristic(char** token, UUID* characteristicUUID, uint16_t* handle)
+		{
+			// skip the two spaces
+			*token += 2;
+
+			// first token is characteristic UUID
+			*token = strtok(*token, ",");
+			*characteristicUUID = UUID(*token);
+
+			// second token is handle
+			*token = strtok(NULL, ",");
+			*handle = static_cast<uint16_t>(strtoul(*token, NULL, 16));
+		}
+
 		template <>
 		LongServerCharacteristic ParseCharacteristic<LongServerCharacteristic>(const UUID& serviceUUID, char* line)
 		{
-			// skip the two spaces
-			char* token = line + 2;
-
-			// first token is characteristic UUID
-			token = strtok(token, ",");
-			UUID characteristicUUID(token);
-
-			// second token is handle
-			token = strtok(NULL, ",");
-			uint16_t handle = static_cast<uint16_t>(strtoul(token, NULL, 16));
+			UUID characteristicUUID;
+			uint16_t handle;
+			ParseCharacteristic(&line, &characteristicUUID, &handle);
 
 			// last V if value; C if configuration
-			token = strtok(NULL, ",");
-			bool isConfiguration = token[0] == 'C';
+			line = strtok(NULL, ",");
+			bool isConfiguration = line[0] == 'C';
 
 			return LongServerCharacteristic(serviceUUID, characteristicUUID, handle, isConfiguration);
 		}
@@ -500,42 +507,15 @@ namespace Bluetooth
 		template <>
 		LongClientCharacteristic ParseCharacteristic<ClientCharacteristic<UUID>>(const UUID& serviceUUID, char* line)
 		{
-			// skip the two spaces
-			char* token = line + 2;
-
-			// first token is characteristic UUID
-			token = strtok(token, ",");
-			UUID characteristicUUID(token);
-
-			// second token is handle
-			token = strtok(NULL, ",");
-			uint16_t handle = static_cast<uint16_t>(strtoul(token, NULL, 16));
+			UUID characteristicUUID;
+			uint16_t handle;
+			ParseCharacteristic(&line, &characteristicUUID, &handle);
 
 			// last is the property
-			token = strtok(NULL, ",");
-			CharacteristicProperty characteristicProperty = static_cast<CharacteristicProperty>(strtoul(token, NULL, 16));
+			line = strtok(NULL, ",");
+			CharacteristicProperty characteristicProperty = static_cast<CharacteristicProperty>(strtoul(line, NULL, 16));
 
 			return LongClientCharacteristic(serviceUUID, characteristicUUID, handle, characteristicProperty);
 		}
-
-		//template LongServerCharacteristic RN4020Driver::ParseCharacteristic<LongServerCharacteristic>(const UUID& serviceUUID, char* line)
-		//{
-		//	// skip the two spaces
-		//	char* token = line + 2;
-
-		//	// first token is characteristic UUID
-		//	token = strtok(token, ",");
-		//	UUID characteristicUUID(token);
-
-		//	// second token is handle
-		//	token = strtok(NULL, ",");
-		//	uint16_t handle = static_cast<uint16_t>(strtoul(token, NULL, 16));
-
-		//	// last V if value; C if configuration
-		//	token = strtok(NULL, ",");
-		//	bool isConfiguration = token[0] == 'C';
-
-		//	return LongServerCharacteristic(serviceUUID, characteristicUUID, handle, isConfiguration);
-		//}
 	}
 }
