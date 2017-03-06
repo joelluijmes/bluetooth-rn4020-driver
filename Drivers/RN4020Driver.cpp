@@ -347,6 +347,16 @@ namespace Bluetooth
 			return true;
 		}
 
+		bool RN4020Driver::ListServerServices(UUID* services, uint8_t len, uint8_t* listed) const
+		{
+			return ListServices("LS", services, len, listed);
+		}
+
+		bool RN4020Driver::ListClientServices(UUID* services, uint8_t len, uint8_t* listed) const
+		{
+			return ListServices("LC", services, len, listed);
+		}
+
 		bool RN4020Driver::ListServerCharacteristics(LongServerCharacteristic* characteristics, uint8_t len, uint8_t* listed) const
 		{
 			return ListCharacteristics("LS", characteristics, len, listed);
@@ -446,7 +456,29 @@ namespace Bluetooth
 
 			return false;
 		}
-		
+
+		bool RN4020Driver::ListServices(const char* command, UUID* services, uint8_t len, uint8_t* listed) const
+		{
+			char line[BUF_LEN];
+
+			uint8_t index = 0;
+
+			bool receiving = Get(command, line, sizeof(line));
+			while (receiving && index < len && strncmp(line, "END", 3) != 0)
+			{
+				// starts with two spaces means a characteristic else its a new service
+				if (strncmp(line, "  ", 2) != 0)
+					services[index++] = UUID(line);
+
+				receiving = Get(line, sizeof(line));
+			}
+
+			if (listed)
+				*listed = index;
+
+			return strncmp(line, "END", 3) == 0;
+		}
+
 		BluetoothLEPeripheral RN4020Driver::ParseScanLine(const char* line) const
 		{
 			const char* ptr = line;

@@ -523,6 +523,10 @@ namespace Bluetooth
 			/// 
 			bool ReadScan(BluetoothLEPeripheral* devices, uint8_t len, uint8_t* found, uint8_t timeout = 10) const;
 
+			bool ListServerServices(UUID* services, uint8_t len, uint8_t* listed) const;
+
+			bool ListClientServices(UUID* services, uint8_t len, uint8_t* listed) const;
+
 			bool ListServerCharacteristics(LongServerCharacteristic* characteristics, uint8_t len, uint8_t* listed) const;
 
 			bool ListClientCharacteristics(LongClientCharacteristic* characteristics, uint8_t len, uint8_t* listed) const;
@@ -684,6 +688,8 @@ namespace Bluetooth
 			bool WaitAnything(uint8_t timeout = 20) const;
 			bool WaitAnything(char* buf, uint32_t len, int32_t* received = NULL, uint8_t timeout = 20) const;
 			
+			bool ListServices(const char* command, UUID* services, uint8_t len, uint8_t* listed) const;
+
 			template<typename T>
 			bool ListCharacteristics(const char* command, T* characteristics, uint8_t len, uint8_t* listed) const;
 
@@ -715,7 +721,7 @@ namespace Bluetooth
 			uint8_t index = 0;
 
 			bool receiving = Get(command, line, sizeof(line));
-			while (receiving)
+			while (receiving && index < len && strncmp(line, "END", 3) != 0)
 			{
 				// starts with two spaces means a characteristic else its a new service
 				if (strncmp(line, "  ", 2) == 0)
