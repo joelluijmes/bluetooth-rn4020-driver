@@ -359,12 +359,22 @@ namespace Bluetooth
 
 		bool RN4020Driver::ListServerCharacteristics(LongServerCharacteristic* characteristics, uint8_t len, uint8_t* listed) const
 		{
-			return ListCharacteristics("LS", characteristics, len, listed);
+			return ListCharacteristics(NULL, "LS", characteristics, len, listed);
 		}
 
 		bool RN4020Driver::ListClientCharacteristics(LongClientCharacteristic* characteristics, uint8_t len, uint8_t* listed) const
 		{
-			return ListCharacteristics("LC", characteristics, len, listed);
+			return ListCharacteristics(NULL, "LC", characteristics, len, listed);
+		}
+
+		bool RN4020Driver::ListServerCharacteristics(const UUID& serviceUUID, LongServerCharacteristic* characteristics, uint8_t len, uint8_t* listed) const
+		{
+			return ListCharacteristics(&serviceUUID, "LS", characteristics, len, listed);
+		}
+
+		bool RN4020Driver::ListClientCharacteristics(const UUID& serviceUUID, LongClientCharacteristic* characteristics, uint8_t len, uint8_t* listed) const
+		{
+			return ListCharacteristics(&serviceUUID, "LC", characteristics, len, listed);
 		}
 
 		bool RN4020Driver::Set(const char* command, const char* param) const

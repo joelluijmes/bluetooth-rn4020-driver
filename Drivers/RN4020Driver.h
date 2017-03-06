@@ -531,7 +531,10 @@ namespace Bluetooth
 
 			bool ListClientCharacteristics(LongClientCharacteristic* characteristics, uint8_t len, uint8_t* listed) const;
 
+			bool ListServerCharacteristics(const UUID& serviceUUID, LongServerCharacteristic* characteristics, uint8_t len, uint8_t* listed) const;
 
+			bool ListClientCharacteristics(const UUID& serviceUUID, LongClientCharacteristic* characteristics, uint8_t len, uint8_t* listed) const;
+			
 			enum BaudRate
 			{
 				RN4020_BAUD_2400 = 0,
@@ -691,7 +694,7 @@ namespace Bluetooth
 			bool ListServices(const char* command, UUID* services, uint8_t len, uint8_t* listed) const;
 
 			template<typename T>
-			bool ListCharacteristics(const char* command, T* characteristics, uint8_t len, uint8_t* listed) const;
+			bool ListCharacteristics(const UUID* targetUUID, const char* command, T* characteristics, uint8_t len, uint8_t* listed) const;
 
 			BluetoothLEPeripheral ParseScanLine(const char* line) const;
 			Serial::DelimiterSerial<uint8_t, BUF_LEN, g_NewLineDelimiter> m_Serial;
@@ -713,7 +716,7 @@ namespace Bluetooth
 		LongClientCharacteristic ParseCharacteristic<LongClientCharacteristic>(const UUID& serviceUUID, char* line);
 
 		template <typename T>
-		bool RN4020Driver::ListCharacteristics(const char* command, T* characteristics, uint8_t len, uint8_t* listed) const
+		bool RN4020Driver::ListCharacteristics(const UUID* targetUUID, const char* command, T* characteristics, uint8_t len, uint8_t* listed) const
 		{
 			char line[BUF_LEN];
 
@@ -721,13 +724,26 @@ namespace Bluetooth
 			uint8_t index = 0;
 
 			bool receiving = Get(command, line, sizeof(line));
+			bool isTargetUUID = false;
+
 			while (receiving && index < len && strncmp(line, "END", 3) != 0)
 			{
 				// starts with two spaces means a characteristic else its a new service
 				if (strncmp(line, "  ", 2) == 0)
-					characteristics[index++] = ParseCharacteristic<T>(serviceUUID, line);
-				else  
+				{
+					// if we want all characteristics or it is our target
+					if (targetUUID == NULL || isTargetUUID)
+						characteristics[index++] = ParseCharacteristic<T>(serviceUUID, line);
+				}
+				else
+				{
+					// stop when we already have looped over the target UUID
+					if (isTargetUUID)
+						break;
+
 					serviceUUID = UUID(line);
+					isTargetUUID = targetUUID && *targetUUID == serviceUUID;
+				}
 
 				receiving = Get(line, sizeof(line));
 			}
@@ -735,7 +751,8 @@ namespace Bluetooth
 			if (listed)
 				*listed = index;
 
-			return strncmp(line, "END", 3) == 0;
+			// true if we requested everything or got the target characteristics
+			return targetUUID == NULL || isTargetUUID;
 		}
 	}
 }

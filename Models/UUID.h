@@ -38,6 +38,10 @@ namespace Bluetooth
 		UUID(const UUID& a_Other);
 
 		UUID& operator=(const UUID& a_Other);
+		
+		friend bool operator==(const UUID& a_Lhs, const UUID& a_Rhs);
+
+		friend bool operator!=(const UUID& a_Lhs, const UUID& a_Rhs);
 
 		/// 
 		/// Gets the short 16 - bit UUID, only valid when constructed from UUID(uint16_t)

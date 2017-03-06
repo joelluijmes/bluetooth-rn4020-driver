@@ -108,4 +108,14 @@ namespace Bluetooth
 	{
 		return m_UUID;
 	}
+
+	bool operator==(const UUID& a_Lhs, const UUID& a_Rhs)
+	{
+		return a_Lhs.m_ShortUUID == a_Rhs.m_ShortUUID;
+	}
+
+	bool operator!=(const UUID& a_Lhs, const UUID& a_Rhs)
+	{
+		return !(a_Lhs == a_Rhs);
+	}
 }
