@@ -87,7 +87,7 @@ namespace Bluetooth
 			return false;
 
 		char buf[12]; // 'Connected\r\n'
-		if (!m_RN4020.WaitString(buf, sizeof(buf)))
+		if (!m_RN4020.WaitAnything(buf, sizeof(buf)))
 			return false;
 
 		if (strncmp(buf, "Connected", 9) != 0)

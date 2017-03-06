@@ -5,6 +5,7 @@
 #include "../Serial/ISerial.h"
 #include "../Models/ServerCharacteristic.h"
 #include "../Models/ClientCharacteristic.h"
+#include "../Serial/DelimiterSerial.h"
 
 namespace Bluetooth
 {
@@ -12,6 +13,8 @@ namespace Bluetooth
 
 	namespace Drivers
 	{
+		extern char g_NewLineDelimiter[];
+
 		class RN4020Driver
 		{
 			friend class RN4020Device;
@@ -669,22 +672,63 @@ namespace Bluetooth
 			};
 			
 		private:
+			static const uint8_t BUF_LEN = 32;
+
 			bool Set(const char* command, const char* param) const;
 			bool SetHex32(const char* command, uint32_t value) const;
 
-			bool Get(const char* command, char* buf, uint32_t len, int32_t* received) const;
+			bool Get(char* buf, uint32_t len, int32_t* received = NULL) const;
+			bool Get(const char* command, char* buf, uint32_t len, int32_t* received = NULL) const;
 			bool GetHex32(const char* command, uint32_t* value) const;
-			bool GetString(char* buf, uint8_t len, bool stripNewLine = true) const;
-			bool GetString(const char* command, char* buf, uint8_t len, bool stripNewLine = true) const;
 
 			bool WaitAnything(uint8_t timeout = 20) const;
-			bool WaitAnything(char* buf, uint32_t len, int32_t* received, uint8_t timeout = 20) const;
-			bool WaitString(char* buf, uint32_t len, bool stripNewLine = true, uint8_t timeout = 20) const;
+			bool WaitAnything(char* buf, uint32_t len, int32_t* received = NULL, uint8_t timeout = 20) const;
+			
+			template<typename T>
+			bool ListCharacteristics(const char* command, T* characteristics, uint8_t len, uint8_t* listed) const;
 
 			BluetoothLEPeripheral ParseScanLine(const char* line) const;
-
-			const Serial::ISerial& m_Serial;
+			Serial::DelimiterSerial<uint8_t, BUF_LEN, g_NewLineDelimiter> m_Serial;
 		};
+
+		template<typename T>
+		T ParseCharacteristic(const UUID& serviceUUID, char* line)
+		{
+			typedef int assert_no_generic_implementation[-1];
+			return NULL;
+		}
+
+		template<>
+		LongServerCharacteristic ParseCharacteristic<LongServerCharacteristic>(const UUID& serviceUUID, char* line);
+
+		template<>
+		LongClientCharacteristic ParseCharacteristic<LongClientCharacteristic>(const UUID& serviceUUID, char* line);
+
+		template <typename T>
+		bool RN4020Driver::ListCharacteristics(const char* command, T* characteristics, uint8_t len, uint8_t* listed) const
+		{
+			char line[BUF_LEN];
+
+			UUID serviceUUID;
+			uint8_t index = 0;
+
+			bool receiving = Get(command, line, sizeof(line));
+			while (receiving)
+			{
+				// starts with two spaces means a characteristic else its a new service
+				if (strncmp(line, "  ", 2) == 0)
+					characteristics[index++] = ParseCharacteristic<T>(serviceUUID, line);
+				else  
+					serviceUUID = UUID(line);
+
+				receiving = Get(line, sizeof(line));
+			}
+
+			if (listed)
+				*listed = index;
+
+			return strncmp(line, "END", 3) == 0;
+		}
 	}
 }
 

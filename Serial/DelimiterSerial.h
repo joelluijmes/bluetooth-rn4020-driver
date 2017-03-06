@@ -2,7 +2,7 @@
 #define LINE_READER_WRITER_H_
 
 #include "ISerial.h"
-#include "Util/CircularBuffer.h"
+#include "../Util/CircularBuffer.h"
 
 #include <cstring>
 
@@ -18,7 +18,9 @@ namespace Serial
 		explicit DelimiterSerial(const ISerial& serial);
 
 		int32_t Send(const char* buffer, uint32_t len) const override;
+		int32_t SendRaw(const char* buffer, uint32_t len) const;
 		int32_t Receive(char* buffer, uint32_t len) const override;
+		int32_t ReceiveRaw(char* buffer, uint32_t len) const;
 		void Flush() const override;
 
 	private:
@@ -37,15 +39,25 @@ namespace Serial
 	template <typename TType = uint32_t, TType TLen, const char* TDelimiter>
 	int32_t DelimiterSerial<TType, TLen, TDelimiter>::Send(const char* buffer, uint32_t len) const
 	{
-		int32_t sent = m_Serial.Send(buffer, len);
-		if (sent == -1)
-			return -1;
+		int32_t sent = 0;
+		if (buffer && len > 0)
+		{
+			sent = m_Serial.Send(buffer, len);
+			if (sent == -1)
+				return -1;
+		}
 
 		int32_t lineSent = m_Serial.Send(TDelimiter, m_DelimiterLength);
 		if (lineSent == -1)
 			return -1;
 
 		return sent + lineSent;
+	}
+
+	template <typename TType, TType TLen, const char* TDelimiter>
+	int32_t DelimiterSerial<TType, TLen, TDelimiter>::SendRaw(const char* buffer, uint32_t len) const
+	{
+		return m_Serial.Send(buffer, len);
 	}
 
 	template <typename TType = uint32_t, TType TLen, const char* TDelimiter>
@@ -106,6 +118,12 @@ namespace Serial
 
 		buffer[lineLength] = 0;
 		return lineLength;
+	}
+
+	template <typename TType, TType TLen, const char* TDelimiter>
+	int32_t DelimiterSerial<TType, TLen, TDelimiter>::ReceiveRaw(char* buffer, uint32_t len) const
+	{
+		return m_Serial.Receive(buffer, len);
 	}
 }
 

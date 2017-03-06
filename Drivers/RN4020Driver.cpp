@@ -4,6 +4,7 @@
 #include <string.h>
 #include <cstdio>
 #include <cstdlib>
+#include "../Serial/DelimiterSerial.h"
 
 
 // RN4020Driver Constants
@@ -25,13 +26,17 @@ namespace
 
 		*p = '\0';
 	}
+
 }
 
 namespace Bluetooth
 {
 	namespace Drivers
 	{
-		RN4020Driver::RN4020Driver(const Serial::ISerial& serial): m_Serial(serial)
+		char g_NewLineDelimiter[] = "\r\n";
+
+		RN4020Driver::RN4020Driver(const Serial::ISerial& serial)
+			: m_Serial(serial)
 		{
 		}
 
@@ -69,7 +74,7 @@ namespace Bluetooth
 
 		bool RN4020Driver::GetFirmwareVersion(char* version, uint8_t len) const
 		{
-			return GetString("GDF", version, len);
+			return Get("GDF", version, len);
 		}
 
 		bool RN4020Driver::SetHardwareVersion(const char* version) const
@@ -79,7 +84,7 @@ namespace Bluetooth
 
 		bool RN4020Driver::GetHardwareVersion(char* version, uint8_t len) const
 		{
-			return GetString("SDH", version, len);
+			return Get("SDH", version, len);
 		}
 
 		bool RN4020Driver::SetModel(const char* model) const
@@ -89,7 +94,7 @@ namespace Bluetooth
 
 		bool RN4020Driver::GetModel(char* version, uint8_t len) const
 		{
-			return GetString("GDM", version, len);
+			return Get("GDM", version, len);
 		}
 
 		bool RN4020Driver::SetManufacturer(const char* manufacturer) const
@@ -99,7 +104,7 @@ namespace Bluetooth
 
 		bool RN4020Driver::GetManufacturer(char* manufacturer, uint8_t len) const
 		{
-			return GetString("GDN", manufacturer, len);
+			return Get("GDN", manufacturer, len);
 		}
 
 		bool RN4020Driver::SetName(const char* name) const
@@ -109,7 +114,7 @@ namespace Bluetooth
 
 		bool RN4020Driver::GetName(char* name, uint8_t len) const
 		{
-			return GetString("GN", name, len);
+			return Get("GN", name, len);
 		}
 
 		bool RN4020Driver::SetSerializedName(const char* name) const
@@ -119,7 +124,7 @@ namespace Bluetooth
 
 		bool RN4020Driver::GetSerializedName(char* name, uint8_t len) const
 		{
-			return GetString("G-", name, len);
+			return Get("G-", name, len);
 		}
 
 		bool RN4020Driver::SetSoftwareRevision(const char* revision) const
@@ -129,7 +134,7 @@ namespace Bluetooth
 
 		bool RN4020Driver::GetSoftwareRevision(char* revision, uint8_t len) const
 		{
-			return GetString("GDR", revision, len);
+			return Get("GDR", revision, len);
 		}
 
 		bool RN4020Driver::SetSerialNumber(const char* serial) const
@@ -139,7 +144,7 @@ namespace Bluetooth
 
 		bool RN4020Driver::GetSerialNumber(char* serial, uint8_t len) const
 		{
-			return GetString("GDS", serial, len);
+			return Get("GDS", serial, len);
 		}
 
 		bool RN4020Driver::SetTiming(uint16_t interval, uint16_t latency, uint16_t timeout) const
@@ -153,7 +158,7 @@ namespace Bluetooth
 		bool RN4020Driver::GetTiming(uint16_t* interval, uint16_t* latency, uint16_t* timeout) const
 		{
 			char buf[17] = {0};
-			if (!GetString("GT", buf, sizeof(buf) - 1))
+			if (!Get("GT", buf, sizeof(buf) - 1))
 				return false;
 
 			char* end;
@@ -246,7 +251,7 @@ namespace Bluetooth
 		{
 			char buf[16] = {0}; // No Connection + \r\n
 
-			if (!GetString("M", buf, sizeof(buf)))
+			if (!Get("M", buf, sizeof(buf)))
 				return 0;
 
 			if (strcmp(buf, "No Connection") == 0)
@@ -272,7 +277,7 @@ namespace Bluetooth
 
 		bool RN4020Driver::Dump(char* buf, uint8_t len) const
 		{
-			if (!GetString("D", buf, len, false))
+			if (!Get("D", buf, len, false))
 				return false;
 
 			m_Serial.Flush();
@@ -288,7 +293,7 @@ namespace Bluetooth
 				return false;
 
 			// when it is booted it puts out CMD
-			if (!WaitString(buf, sizeof(buf)))
+			if (!WaitAnything(buf, sizeof(buf)))
 				return false;
 
 			return strncmp(buf, "CMD", 3) == 0;
@@ -309,7 +314,7 @@ namespace Bluetooth
 
 		bool RN4020Driver::FirmwareVersion(char* buf, uint8_t len) const
 		{
-			return GetString("V", buf, len);
+			return Get("V", buf, len);
 		}
 
 		bool RN4020Driver::StopScan() const
@@ -333,7 +338,7 @@ namespace Bluetooth
 
 			int32_t received;
 			uint8_t index = 0;
-			while (index < len && WaitString(buf, sizeof(buf), true, timeout))
+			while (index < len && WaitAnything(buf, sizeof(buf), NULL, timeout))
 				devices[index++] = ParseScanLine(buf);
 
 			if (found)
@@ -344,135 +349,29 @@ namespace Bluetooth
 
 		bool RN4020Driver::ListServerCharacteristics(LongServerCharacteristic* characteristics, uint8_t len, uint8_t* listed) const
 		{
-			// TODO: Use circular buffer
-			char buf[256];
-			
-			int32_t received;
-			if (!Get("LS", buf, sizeof(buf) - 1, &received))
-				return false;
-			buf[received] = 0;
-
-			char* line = buf;
-			char* ptr = strchr(line, '\r');
-			
-			uint8_t index = 0;
-			UUID serviceUuid;
-			while (ptr && index < len && strncmp(line, "END", 3) != 0)
-			{
-				// null terminates the \r\n
-				*ptr++ = 0;
-				*ptr++ = 0;
-
-				size_t match = strncmp(line, "  ", 2);
-
-				// new service 
-				if (match != 0)
-				{
-					serviceUuid = UUID(line);
-				}
-				else if (match == 0) // characteristic
-				{
-					// skip the two spaces
-					line += 2;
-
-					char* token = strtok(line, ",");
-					// first token is characteristic UUID
-					UUID characteristicUUID(token);
-					token = strtok(NULL, ",");
-
-					// second token is handle
-					uint16_t handle = static_cast<uint16_t>(strtoul(token, NULL, 16));
-					token = strtok(NULL, ",");
-
-					// last V if value; C if configuration
-					bool isConfiguration = token[0] == 'C';
-
-					characteristics[index++] = LongServerCharacteristic(serviceUuid, characteristicUUID, handle, isConfiguration);
-				}
-
-				// find the next line
-				line = ptr;
-				ptr = strchr(line, '\r');
-			}
-
-			if (listed)
-				*listed = index;
-
-			return true;
+			return ListCharacteristics("LS", characteristics, len, listed);
 		}
 
 		bool RN4020Driver::ListClientCharacteristics(LongClientCharacteristic* characteristics, uint8_t len, uint8_t* listed) const
 		{
-			char buf[256];
-
-			int32_t received;
-			if (!Get("LC", buf, sizeof(buf) - 1, &received))
-				return false;
-			buf[received] = 0;
-
-			char* line = buf;
-			char* ptr = strchr(line, '\r');
-
-			uint8_t index = 0;
-			UUID serviceUuid;
-			while (ptr && index < len && strncmp(line, "END", 3) != 0)
-			{
-				// null terminates the \r\n
-				*ptr++ = 0;
-				*ptr++ = 0;
-
-				size_t match = strncmp(line, "  ", 2);
-
-				// new service 
-				if (match != 0)
-				{
-					serviceUuid = UUID(line);
-				}
-				else if (match == 0) // characteristic
-				{
-					// skip the two spaces
-					line += 2;
-
-					char* token = strtok(line, ",");
-					// first token is characteristic UUID
-					UUID characteristicUUID(token);
-					token = strtok(NULL, ",");
-
-					// second token is handle
-					uint16_t handle = static_cast<uint16_t>(strtoul(token, NULL, 16));
-					token = strtok(NULL, ",");
-
-					// last is the property
-					CharacteristicProperty characteristicProperty = static_cast<CharacteristicProperty>(strtoul(token, NULL, 16));
-
-					characteristics[index++] = LongClientCharacteristic(serviceUuid, characteristicUUID, handle, characteristicProperty);
-				}
-
-				// find the next line
-				line = ptr;
-				ptr = strchr(line, '\r');
-			}
-
-			if (listed)
-				*listed = index;
-
-			return true;
+			return ListCharacteristics("LC", characteristics, len, listed);
 		}
 
 		bool RN4020Driver::Set(const char* command, const char* param) const
 		{
-			if (m_Serial.Send(command, strlen(command)) == -1)
+			if (m_Serial.SendRaw(command, strlen(command)) == -1)
 				return false;
 
 			if (param)
 			{
-				if (m_Serial.Send(",", 1) == -1)
+				if (m_Serial.SendRaw(",", 1) == -1)
 					return false;
-				if (m_Serial.Send(param, strlen(param)) == -1)
+				if (m_Serial.SendRaw(param, strlen(param)) == -1)
 					return false;
 			}
 
-			if (m_Serial.Send("\r\n", 2) == -1)
+			// sends the delimiter
+			if (m_Serial.Send(NULL, 0) == -1)
 				return false;
 
 			// RN4020Driver returns AOK of ERR for set commands
@@ -493,13 +392,16 @@ namespace Bluetooth
 			return Set(command, buf);
 		}
 
+		bool RN4020Driver::Get(char* buf, uint32_t len, int32_t* received) const
+		{
+			return Get(NULL, buf, len, received);
+		}
+
 		bool RN4020Driver::Get(const char* command, char* buf, uint32_t len, int32_t* received) const
 		{
 			if (command)
 			{
 				if (m_Serial.Send(command, strlen(command)) == -1)
-					return false;
-				if (m_Serial.Send("\r\n", 2) == -1)
 					return false;
 			}
 
@@ -513,7 +415,7 @@ namespace Bluetooth
 		bool RN4020Driver::GetHex32(const char* command, uint32_t* value) const
 		{
 			char buf[11] = {0};
-			if (!GetString("GS", buf, sizeof(buf) - 1))
+			if (!Get("GS", buf, sizeof(buf) - 1))
 				return false;
 
 #if ULONG_MAX >= 0xFFFFFFFFU
@@ -528,24 +430,6 @@ namespace Bluetooth
 			return true;
 		}
 
-		bool RN4020Driver::GetString(char* buf, uint8_t len, bool stripNewLine) const
-		{
-			return GetString(NULL, buf, len, stripNewLine);
-		}
-
-		bool RN4020Driver::GetString(const char* command, char* buf, uint8_t len, bool stripNewLine) const
-		{
-			int32_t received;
-			if (!Get(command, buf, len, &received))
-				return false;
-
-			buf[received] = '\0';
-			if (stripNewLine)
-				stripNewLines(buf);
-
-			return true;
-		}
-
 		bool RN4020Driver::WaitAnything(uint8_t timeout) const
 		{
 			char buf[64];
@@ -556,24 +440,13 @@ namespace Bluetooth
 		{
 			for (uint8_t i = 0; i < timeout; ++i)
 			{
-				if (Get(NULL, buf, len, received))
+				if (Get(buf, len, received))
 					return true;
 			}
 
 			return false;
 		}
-
-		bool RN4020Driver::WaitString(char* buf, uint32_t len, bool stripNewLine, uint8_t timeout) const
-		{
-			for (uint8_t i = 0; i < timeout; ++i)
-			{
-				if (GetString(buf, len, stripNewLine))
-					return true;
-			}
-
-			return false;
-		}
-
+		
 		BluetoothLEPeripheral RN4020Driver::ParseScanLine(const char* line) const
 		{
 			const char* ptr = line;
@@ -602,5 +475,67 @@ namespace Bluetooth
 
 			return BluetoothLEPeripheral(address, randomAddress, name, uuid, rssi);
 		}
+
+		template <>
+		LongServerCharacteristic ParseCharacteristic<LongServerCharacteristic>(const UUID& serviceUUID, char* line)
+		{
+			// skip the two spaces
+			char* token = line + 2;
+
+			// first token is characteristic UUID
+			token = strtok(token, ",");
+			UUID characteristicUUID(token);
+
+			// second token is handle
+			token = strtok(NULL, ",");
+			uint16_t handle = static_cast<uint16_t>(strtoul(token, NULL, 16));
+
+			// last V if value; C if configuration
+			token = strtok(NULL, ",");
+			bool isConfiguration = token[0] == 'C';
+
+			return LongServerCharacteristic(serviceUUID, characteristicUUID, handle, isConfiguration);
+		}
+
+		template <>
+		LongClientCharacteristic ParseCharacteristic<ClientCharacteristic<UUID>>(const UUID& serviceUUID, char* line)
+		{
+			// skip the two spaces
+			char* token = line + 2;
+
+			// first token is characteristic UUID
+			token = strtok(token, ",");
+			UUID characteristicUUID(token);
+
+			// second token is handle
+			token = strtok(NULL, ",");
+			uint16_t handle = static_cast<uint16_t>(strtoul(token, NULL, 16));
+
+			// last is the property
+			token = strtok(NULL, ",");
+			CharacteristicProperty characteristicProperty = static_cast<CharacteristicProperty>(strtoul(token, NULL, 16));
+
+			return LongClientCharacteristic(serviceUUID, characteristicUUID, handle, characteristicProperty);
+		}
+
+		//template LongServerCharacteristic RN4020Driver::ParseCharacteristic<LongServerCharacteristic>(const UUID& serviceUUID, char* line)
+		//{
+		//	// skip the two spaces
+		//	char* token = line + 2;
+
+		//	// first token is characteristic UUID
+		//	token = strtok(token, ",");
+		//	UUID characteristicUUID(token);
+
+		//	// second token is handle
+		//	token = strtok(NULL, ",");
+		//	uint16_t handle = static_cast<uint16_t>(strtoul(token, NULL, 16));
+
+		//	// last V if value; C if configuration
+		//	token = strtok(NULL, ",");
+		//	bool isConfiguration = token[0] == 'C';
+
+		//	return LongServerCharacteristic(serviceUUID, characteristicUUID, handle, isConfiguration);
+		//}
 	}
 }
