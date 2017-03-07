@@ -160,6 +160,34 @@ namespace Bluetooth
 			bool GetName(char* name, uint8_t len) const;
 
 			/// 
+			/// This command sets the transmission power. The transmission power value will be
+			/// saved in NVM and retrievable by the command “GP”.\n
+			/// Note: A reboot is not needed for the new power value to become effective
+			///
+			/// SP Value	TX Power(dBm)
+			///		0		-19.1
+			///		1		-15.1
+			///		2		-10.9
+			///		3		-6.9
+			///		4		-2.5 (default)
+			///		5		1.6
+			///		6		5.8
+			///		7		7.5
+			///
+			/// @param value		value to set
+			/// @return	true if operation completed succesfully			
+			/// 
+			bool SetPower(uint8_t value) const;
+
+			/// 
+			/// This commands get the transmission power.
+			///
+			/// @param value		output of value
+			/// @return	true if operation completed succesfully			
+			/// 
+			bool GetPower(uint8_t* value) const;
+
+			/// 
 			/// This command sets the serialized Bluetooth-friendly name of the device, where
 			/// <string> is up to 15 alphanumeric characters.This command automatically appends
 			///	the last 2 bytes of the Bluetooth MAC address to the name, which is useful for

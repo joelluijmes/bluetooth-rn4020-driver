@@ -53,7 +53,9 @@ namespace Bluetooth
 			if (!Get("GB", buf, sizeof(buf), NULL))
 				return false;
 
-			*baud = static_cast<BaudRate>(buf[0] - '0');
+			if (baud)
+				*baud = static_cast<BaudRate>(buf[0] - '0');
+
 			return true;
 		}
 
@@ -117,6 +119,28 @@ namespace Bluetooth
 			return Get("GN", name, len);
 		}
 
+		bool RN4020Driver::SetPower(uint8_t value) const
+		{
+			if (value > 7)
+				value = 7;
+
+			char buf[] = { static_cast<char>(value + '0'), '\0' };
+			return Set("SP", buf);
+		}
+
+		bool RN4020Driver::GetPower(uint8_t* value) const
+		{
+			// 1 for result; 2 for \r\n
+			char buf[3];
+			if (!Get("GP", buf, sizeof(buf), NULL))
+				return false;
+
+			if (value)
+				*value = static_cast<uint8_t>(buf[0] - '0');
+
+			return true;
+		}
+		
 		bool RN4020Driver::SetSerializedName(const char* name) const
 		{
 			return Set("S-", name);
