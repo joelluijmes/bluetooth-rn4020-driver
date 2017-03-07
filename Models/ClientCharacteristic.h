@@ -65,7 +65,7 @@ namespace Bluetooth
 		///
 		/// @return				service UUID
 		/// 
-		TUUID GetServiceUuid() const
+		const TUUID& GetServiceUuid() const
 		{
 			return m_ServiceUUID;
 		}
@@ -75,7 +75,7 @@ namespace Bluetooth
 		///
 		/// @return				characteristic UUID
 		/// 
-		TUUID GetCharacteristicUuid() const
+		const TUUID& GetCharacteristicUuid() const
 		{
 			return m_CharacteristicUUID;
 		}

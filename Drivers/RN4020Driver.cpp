@@ -376,25 +376,25 @@ namespace Bluetooth
 		{
 			return ListCharacteristics(&serviceUUID, "LC", characteristics, len, listed);
 		}
-
-		bool RN4020Driver::WriteServerUUID(uint16_t uuid, uint8_t value) const
+		
+		bool RN4020Driver::ReadClientConfigurationByUUID(uint16_t uuid, ClientCharacteristicConfiguration* configuration) const
 		{
-			return WriteCharacteristicInteger("SUW", uuid, value);
+			uint16_t littleEndianConfiguration;
+			if (!ReadServerCharacteristicInteger("CHW", uuid, &littleEndianConfiguration))
+				return false;
+
+			uint8_t highByte = littleEndianConfiguration >> 8;
+			*configuration = static_cast<ClientCharacteristicConfiguration>(highByte);
+
+			return true;
 		}
 
-		bool RN4020Driver::WriteServerHandle(uint16_t handle, uint8_t value) const
+		bool RN4020Driver::WriteClientConfigurationByUUID(uint16_t uuid, bool enable) const
 		{
-			return WriteCharacteristicInteger("SHW", handle, value);
-		}
+			char buf[7] = { 0 };
+			snprintf(buf, sizeof(buf), "%04X,%d", uuid, enable ? 1 : 0);
 
-		bool RN4020Driver::ReadServerUUID(uint16_t uuid, uint8_t* value) const
-		{
-			return ReadCharacteristicInteger("SUR", uuid, value);
-		}
-
-		bool RN4020Driver::ReadServerHandle(uint16_t handle, uint8_t* value) const
-		{
-			return ReadCharacteristicInteger("SHR", handle, value);
+			return Set("CUWC", buf);
 		}
 
 		bool RN4020Driver::Set(const char* command, const char* param) const

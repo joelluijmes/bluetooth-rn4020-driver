@@ -6,6 +6,7 @@
 #include "../Models/ServerCharacteristic.h"
 #include "../Models/ClientCharacteristic.h"
 #include "../Serial/DelimiterSerial.h"
+#include "../Models/ClientCharacteristicConfiguration.h"
 
 namespace Bluetooth
 {
@@ -587,16 +588,100 @@ namespace Bluetooth
 			/// @return	true if operation completed succesfully				
 			///  
 			bool ListClientCharacteristics(const UUID& serviceUUID, LongClientCharacteristic* characteristics, uint8_t len, uint8_t* listed) const;
-			
-			bool WriteServerUUID(uint16_t uuid, uint8_t value) const;
 
-			bool WriteServerHandle(uint16_t handle, uint8_t value) const;
+			/// 
+			/// Writes a specific value to the Server Characteristic specified by the UUID
+			///
+			/// @tparam T		Type of integer
+			/// @param uuid		UUID of characteristic
+			/// @param value	value to write
+			/// @return	true if operation completed succesfully					
+			/// 
+			template <typename T>
+			bool WriteServerIntegerByUUID(uint16_t uuid, T value) const;
 
-			bool ReadServerUUID(uint16_t uuid, uint8_t* value) const;
+			/// 
+			/// Writes a specific value to the Server Characteristic specified by the handle
+			///
+			/// @tparam T		Type of integer
+			/// @param handle	Handle of characteristic
+			/// @param value	value to write
+			/// @return	true if operation completed succesfully					
+			/// 
+			template <typename T>
+			bool WriteServerIntegerByHandle(uint16_t handle, T value) const;
 
-			bool ReadServerHandle(uint16_t handle, uint8_t* value) const;
+			/// 
+			/// Read a value from the Server Characteristic specified by the UUID
+			///
+			/// @tparam T		Type of integer
+			/// @param uuid		UUID of characteristic
+			/// @param value	value to read to
+			/// @return	true if operation completed succesfully					
+			template <typename T>
+			bool ReadServerIntegerByUUID(uint16_t uuid, T* value) const;
 
+			/// 
+			/// Read a value from the Server Characteristic specified by the handle
+			///
+			/// @tparam T		Type of integer
+			/// @param handle	handle of characteristic
+			/// @param value	value to read to
+			/// @return	true if operation completed succesfully	
+			template <typename T>
+			bool ReadServerIntegerByHandle(uint16_t handle, T* value) const;
 
+			/// 
+			/// Writes to the configuration characteristic at the connected client to enable/
+			/// disable notifcation or indication as specified in the enable parameter.
+			///
+			/// @param uuid			UUID of characteristic
+			/// @param enable		Enable indication or notification
+			/// @return	true if operation completed succesfully	
+			/// 
+			bool WriteClientConfigurationByUUID(uint16_t uuid, bool enable) const;
+
+			/// 
+			/// Writes a specific value to the Client Characteristic specified by the UUID
+			///
+			/// @tparam T		Type of integer
+			/// @param uuid		UUID of characteristic
+			/// @param value	value to write
+			/// @return	true if operation completed succesfully					
+			/// 
+			template <typename T>
+			bool WriteClientIntegerValueByUUID(uint16_t uuid, T value) const;
+
+			/// 
+			/// Reads the configuration characteristic at the connected client.
+			///
+			/// @param uuid				UUID of characteristic
+			/// @param configuration	Configuration to read to	
+			/// @return	true if operation completed succesfully			
+			/// 
+			bool ReadClientConfigurationByUUID(uint16_t uuid, ClientCharacteristicConfiguration* configuration) const;
+
+			/// 
+			/// Reads the value characteristic as a integer by UUID.
+			///
+			/// @tparam T		Type of the integer
+			/// @param uuid		UUID of characteristic
+			/// @param value	value to read to
+			/// @return	true if operation completed succesfully			
+			/// 
+			template <typename T>
+			bool ReadClientIntegerByUUID(uint16_t uuid, T* value) const;
+
+			/// 
+			/// Reads the value characteristic as a integer by the handle.
+			///
+			/// @tparam T		Type of the integer
+			/// @param handle	Handle of characteristic
+			/// @param value	value to read to
+			/// @return	true if operation completed succesfully			
+			/// 
+			template <typename T>
+			bool ReadClientIntegerByHandle(uint16_t handle, T* value) const;
 
 			enum BaudRate
 			{
@@ -740,18 +825,21 @@ namespace Bluetooth
 				/// 
 				FEATURE_MLDP_NO_STATUS = 0x00000400
 			};
-			
+
 		private:
 			static const uint8_t BUF_LEN = 32;
 
 			bool Set(const char* command, const char* param) const;
 			bool SetHex32(const char* command, uint32_t value) const;
-			
-			template<typename T>
+
+			template <typename T>
 			bool WriteCharacteristicInteger(const char* command, uint16_t handle, T value) const;
 
-			template<typename T>
-			bool ReadCharacteristicInteger(const char* command, uint16_t param, T* value) const;
+			template <typename T>
+			bool ReadClientCharacteristicInteger(const char* command, uint16_t param, T* value) const;
+
+			template <typename T>
+			bool ReadServerCharacteristicInteger(const char* command, uint16_t param, T* value) const;
 
 			bool Get(char* buf, uint32_t len, int32_t* received = NULL) const;
 			bool Get(const char* command, char* buf, uint32_t len, int32_t* received = NULL) const;
@@ -759,17 +847,17 @@ namespace Bluetooth
 
 			bool WaitAnything(uint8_t timeout = 20) const;
 			bool WaitAnything(char* buf, uint32_t len, int32_t* received = NULL, uint8_t timeout = 20) const;
-			
+
 			bool ListServices(const char* command, UUID* services, uint8_t len, uint8_t* listed) const;
 
-			template<typename T>
+			template <typename T>
 			bool ListCharacteristics(const UUID* targetUUID, const char* command, T* characteristics, uint8_t len, uint8_t* listed) const;
 
 			BluetoothLEPeripheral ParseScanLine(const char* line) const;
 			Serial::DelimiterSerial<uint8_t, BUF_LEN, g_NewLineDelimiter> m_Serial;
 		};
 
-		template<typename T>
+		template <typename T>
 		T ParseCharacteristic(const UUID& serviceUUID, char* line)
 		{
 			typedef int assert_no_generic_implementation[-1];
@@ -778,10 +866,10 @@ namespace Bluetooth
 
 		void ParseCharacteristic(char** token, UUID* characteristicUUID, uint16_t* handle);
 
-		template<>
+		template <>
 		LongServerCharacteristic ParseCharacteristic<LongServerCharacteristic>(const UUID& serviceUUID, char* line);
 
-		template<>
+		template <>
 		LongClientCharacteristic ParseCharacteristic<LongClientCharacteristic>(const UUID& serviceUUID, char* line);
 
 		template <typename T>
@@ -795,7 +883,30 @@ namespace Bluetooth
 		}
 
 		template <typename T>
-		bool RN4020Driver::ReadCharacteristicInteger(const char* command, uint16_t param, T* value) const
+		bool RN4020Driver::ReadClientCharacteristicInteger(const char* command, uint16_t param, T* value) const
+		{
+			// uint32_t is max 8 bytes + R + , + .
+			char buf[12] = { 0 };
+			snprintf(buf, sizeof(buf), "%.4s,%04X", command, param);
+
+			if (!Get(buf, buf, sizeof(buf)))
+				return false;
+
+			char* start = strchr(buf, ',') + 1;
+			char* end = strchr(start, '.');
+
+			// null terminate the value
+			*end = 0;
+
+			// get the value
+			unsigned long val = strtoul(start, NULL, 16);
+			*value = static_cast<T>(val);
+
+			return true;
+		}
+
+		template <typename T>
+		bool RN4020Driver::ReadServerCharacteristicInteger(const char* command, uint16_t param, T* value) const
 		{
 			// max command lenght is 4 CUWC/CUWV + param + 0
 			char buf[9] = { 0 };
@@ -848,6 +959,48 @@ namespace Bluetooth
 
 			// true if we requested everything or got the target characteristics
 			return targetUUID == NULL || isTargetUUID;
+		}
+
+		template <typename T>
+		bool RN4020Driver::WriteServerIntegerByUUID(uint16_t uuid, T value) const
+		{
+			return WriteCharacteristicInteger("SUW", uuid, value);
+		}
+
+		template <typename T>
+		bool RN4020Driver::WriteServerIntegerByHandle(uint16_t handle, T value) const
+		{
+			return WriteCharacteristicInteger("SHW", handle, value);
+		}
+
+		template <typename T>
+		bool RN4020Driver::ReadServerIntegerByUUID(uint16_t uuid, T* value) const
+		{
+			return ReadServerCharacteristicInteger("SUR", uuid, value);
+		}
+
+		template <typename T>
+		bool RN4020Driver::ReadServerIntegerByHandle(uint16_t handle, T* value) const
+		{
+			return ReadServerCharacteristicInteger("SHR", handle, value);
+		}
+
+		template <typename T>
+		bool RN4020Driver::WriteClientIntegerValueByUUID(uint16_t uuid, T value) const
+		{
+			return WriteCharacteristicInteger("CUWV", uuid, value);
+		}
+
+		template <typename T>
+		bool RN4020Driver::ReadClientIntegerByUUID(uint16_t uuid, T* value) const
+		{
+			return ReadClientCharacteristicInteger("CURV", uuid, value);
+		}
+
+		template <typename T>
+		bool RN4020Driver::ReadClientIntegerByHandle(uint16_t handle, T* value) const
+		{
+			return ReadClientCharacteristicInteger("CHR", handle, value);
 		}
 	}
 }
