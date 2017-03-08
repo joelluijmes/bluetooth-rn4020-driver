@@ -8,22 +8,22 @@ project(${TARGET} CXX)
 # Source and header files to build
 set(
     SOURCES
-    "src/LastError.h"
-    "src/LastError.cpp"
-    "src/WindowsSerialPort.h"
-    "src/WindowsSerialPort.cpp"
-    "src/UART/BaudRate.h"
-    "src/UART/DataBit.h"
-    "src/UART/IUartDriver.h"
-	"src/UART/ParityBit.h"
-    "src/UART/StopBit.h"
+    "LastError.h"
+    "LastError.cpp"
+    "WindowsSerialPort.h"
+    "WindowsSerialPort.cpp"
+    "UART/BaudRate.h"
+    "UART/DataBit.h"
+    "UART/IUartDriver.h"
+	"UART/ParityBit.h"
+    "UART/StopBit.h"
 )
 
-# include the src and base library
-include_directories("src" ${LIB_INC})
+# include the base library
+include_directories(${LIB_INC})
 
 # Export dir for include
-set(WIN_SERIAL_LIB_INC ${CMAKE_CURRENT_SOURCE_DIR}/src PARENT_SCOPE)
+set(WIN_SERIAL_LIB_INC ${CMAKE_CURRENT_SOURCE_DIR} PARENT_SCOPE)
 
 # Build this as a library
 add_library(${TARGET} ${SOURCES})

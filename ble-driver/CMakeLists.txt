@@ -8,32 +8,29 @@ project(${TARGET} CXX)
 # Source and header files to build
 set(
     SOURCES
-    "src/BluetoothLEDevice.h"
-    "src/BluetoothLEDevice.cpp"
-    "src/Drivers/RN4020Device.h"
-    "src/Drivers/RN4020Device.cpp"
-    "src/Drivers/RN4020Driver.h"
-    "src/Drivers/RN4020Driver.cpp"
-    "src/Models/BluetoothLEPeripheral.h"
-    "src/Models/CharacteristicProperty.h"
-    "src/Models/ClientCharacteristic.h"
-    "src/Models/ClientCharacteristicConfiguration.h"
-    "src/Models/MACAddress.h"
-    "src/Models/MACAddress.cpp"
-    "src/Models/ServerCharacteristic.h"
-    "src/Models/Services.h"
-    "src/Models/UUID.h"
-    "src/Models/UUID.cpp"
-    "src/Serial/DelimiterSerial.h"
-    "src/Serial/ISerial.h"
-    "src/Util/CircularBuffer.h"
+    "BluetoothLEDevice.h"
+    "BluetoothLEDevice.cpp"
+    "Drivers/RN4020Device.h"
+    "Drivers/RN4020Device.cpp"
+    "Drivers/RN4020Driver.h"
+    "Drivers/RN4020Driver.cpp"
+    "Models/BluetoothLEPeripheral.h"
+    "Models/CharacteristicProperty.h"
+    "Models/ClientCharacteristic.h"
+    "Models/ClientCharacteristicConfiguration.h"
+    "Models/MACAddress.h"
+    "Models/MACAddress.cpp"
+    "Models/ServerCharacteristic.h"
+    "Models/Services.h"
+    "Models/UUID.h"
+    "Models/UUID.cpp"
+    "Serial/DelimiterSerial.h"
+    "Serial/ISerial.h"
+    "Util/CircularBuffer.h"
 )
 
-# include the src and base library
-include_directories("src")
-
 # Export dir for include
-set(LIB_INC ${CMAKE_CURRENT_SOURCE_DIR}/src PARENT_SCOPE)
+set(LIB_INC ${CMAKE_CURRENT_SOURCE_DIR} PARENT_SCOPE)
 
 # Build this as a library
 add_library(${TARGET} ${SOURCES})

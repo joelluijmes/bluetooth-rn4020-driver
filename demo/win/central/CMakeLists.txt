@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 
 # Set project name
-set(TARGET "win-advertise")
+set(TARGET "win-central")
 project(${TARGET} CXX)
 
 # Source and header files to build
