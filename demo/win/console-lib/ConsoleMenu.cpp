@@ -24,26 +24,39 @@ namespace
 
 namespace Console
 {
-	Menu::Menu(const std::string& text) : m_Text(text), m_Items(), m_SelectedIndex(0)
+	Menu::Menu()
+		: m_Text(), m_Items(), m_SelectedIndex(0), m_ShouldExitMenu(false)
+	{
+	}
+
+	Menu::Menu(const string& text)
+		: m_Text(text), m_Items(), m_SelectedIndex(0), m_ShouldExitMenu(false)
 	{
 	}
 
 	void Menu::Execute() const
 	{
-		while (HandleMenu())
+		while (!m_ShouldExitMenu && HandleMenu())
 			;
+
+		m_ShouldExitMenu = false;
 	}
 
-	void Menu::AddItem(std::unique_ptr<MenuItem> item)
+	void Menu::AddItem(unique_ptr<MenuItem> item)
 	{
 		m_Items.push_back(move(item));
+	}
+
+	void Menu::Exit() const
+	{
+		m_ShouldExitMenu = true;
 	}
 
 	void Menu::PrintMenu() const
 	{
 		ClearConsole();
 
-		PrintItem(m_Text);
+		PrintItem(Text());
 
 		unsigned currentIndex = 0;
 		for (const auto& item : m_Items)
