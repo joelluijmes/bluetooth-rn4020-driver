@@ -11,6 +11,8 @@ set(
 	"ConsoleMenu.h"
 	"ConsoleMenu.cpp"
 )
+# Keep structure for Visual Studio
+assign_source_group(${SOURCES})
 
 # Export dir for include
 set(WIN_CONSOLE_LIB_INC ${CMAKE_CURRENT_SOURCE_DIR} PARENT_SCOPE)

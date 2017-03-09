@@ -10,6 +10,9 @@ set(
     "main.cpp"
 )
 
+# Keep structure for Visual Studio
+assign_source_group(${SOURCES})
+
 # include the src; ble-driver; win-serial
 include_directories(${LIB_INC} ${WIN_SERIAL_LIB_INC})
 

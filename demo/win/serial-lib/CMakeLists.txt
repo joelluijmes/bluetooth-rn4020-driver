@@ -19,6 +19,9 @@ set(
     "UART/StopBit.h"
 )
 
+# Keep structure for Visual Studio
+assign_source_group(${SOURCES})
+
 # include the base library
 include_directories(${LIB_INC})
 
