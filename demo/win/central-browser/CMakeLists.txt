@@ -10,8 +10,11 @@ set(
     "main.cpp"
 	"Menu/MainMenu.h"
 	"Menu/MainMenu.cpp"
+	"Menu/BluetoothMenu.h"
 	"Menu/ComPortMenu.h"
 	"Menu/ComPortMenu.cpp"
+	"Menu/BrowseServerServicesMenu.h"
+	"Menu/BrowseServerServicesMenu.cpp"
 )
 
 # Keep structure for Visual Studio

@@ -1,6 +1,7 @@
 #include "MainMenu.h"
 
 #include <memory>
+#include "BrowseServerServicesMenu.h"
 
 using namespace std;
 
@@ -23,7 +24,7 @@ namespace Console
 		// check updated com port
 		if (previousCOM != m_ComPortMenu->GetCOMPort() && !m_Connected)
 		{
-			AddItem(unique_ptr<MenuItem>(make_unique<EmptyItem>("List Server Services")));
+			AddItem(unique_ptr<MenuItem>(make_unique<BrowseServerServicesMenu>(this, m_ComPortMenu->GetSerialPort())));
 
 			m_Connected = true;
 		}

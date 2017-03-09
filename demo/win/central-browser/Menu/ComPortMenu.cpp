@@ -7,10 +7,12 @@
 #include <Windows.h>
 
 using namespace std;
+using namespace Serial::Windows;
 
 namespace Console
 {
-	ComPortMenu::ComPortMenu(const Menu* parent) : Menu(parent, "Select COM Port"), m_CurrentCOM(-1)
+	ComPortMenu::ComPortMenu(const Menu* parent) 
+		: Menu(parent, "Select COM Port"), m_CurrentCOM(-1)
 	{
 		char buf[7] = "COM"; // COM255\0
 		char targetPath[32];
@@ -44,11 +46,21 @@ namespace Console
 		return m_CurrentCOM;
 	}
 
+	const WindowsSerialPort& ComPortMenu::GetSerialPort() const
+	{
+		return *m_SerialPort;
+	}
+
 	void ComPortMenu::OpenCom(int comPort)
 	{
 		if (comPort == m_CurrentCOM)
 			return;
 
-		m_CurrentCOM = comPort;
+		char comBuf[12] = "\\\\.\\COM";
+		snprintf(comBuf + 7, 4, "%d", comPort);
+
+		m_SerialPort = make_unique<WindowsSerialPort>(comBuf, Serial::BAUDRATE_115200, Serial::DATABIT_8, Serial::PARITYBIT_NONE, Serial::STOPBIT_1);
+		if (m_SerialPort->Open())
+			m_CurrentCOM = comPort;
 	}
 }

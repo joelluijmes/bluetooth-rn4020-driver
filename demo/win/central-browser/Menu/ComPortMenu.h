@@ -3,7 +3,11 @@
 
 #include "ConsoleMenu.h"
 
+#include "WindowsSerialPort.h"
+
+#include <memory>
 #include <string>
+
 
 namespace Console
 {
@@ -14,9 +18,11 @@ namespace Console
 
 		std::string Text() const override;
 		int GetCOMPort() const;
+		const Serial::Windows::WindowsSerialPort& GetSerialPort() const;
 
 	private:
 		int m_CurrentCOM;
+		std::unique_ptr<Serial::Windows::WindowsSerialPort> m_SerialPort;
 
 		void OpenCom(int comPort);
 	};
