@@ -13,6 +13,7 @@ namespace Console
 	{ 
 	public:
 		BrowseServerServicesMenu(const Menu* parent, const Serial::ISerial& serial);
+		void Reload();
 
 	private:
 	};

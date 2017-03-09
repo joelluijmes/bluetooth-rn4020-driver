@@ -62,6 +62,11 @@ namespace Console
 		m_Items.push_back(move(item));
 	}
 
+	void Menu::Clear()
+	{
+		m_Items.clear();
+	}
+
 	void Menu::Exit() 
 	{
 		m_ShouldExitMenu = true;

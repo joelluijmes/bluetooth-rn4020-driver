@@ -11,6 +11,12 @@ namespace Console
 	BrowseServerServicesMenu::BrowseServerServicesMenu(const Menu * parent, const Serial::ISerial& serial)
 		: BluetoothMenu(parent, "Browse Server Services", serial)
 	{
+	}
+
+	void BrowseServerServicesMenu::Reload()
+	{
+		Clear();
+
 		UUID services[20];
 		uint8_t listed = 0;
 		if (!m_Device.GetDriver().ListServerServices(services, 20, &listed))

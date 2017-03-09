@@ -3,8 +3,10 @@
 
 #include "ConsoleMenu.h"
 #include "ComPortMenu.h"
+#include "BrowseServerServicesMenu.h"
 
 #include <string>
+
 
 namespace Console
 {
@@ -17,7 +19,7 @@ namespace Console
 
 	private:
 		ComPortMenu* m_ComPortMenu;
-		bool m_Connected;
+		BrowseServerServicesMenu* m_BrowseServerServicesMenu;
 	};
 }
 

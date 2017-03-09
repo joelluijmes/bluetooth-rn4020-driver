@@ -30,6 +30,7 @@ namespace Console
 		void Execute() override;
 
 		void AddItem(std::unique_ptr<MenuItem> item);
+		void Clear();
 
 	protected:
 		virtual bool HandleMenu();

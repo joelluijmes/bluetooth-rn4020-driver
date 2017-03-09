@@ -56,6 +56,12 @@ namespace Console
 		if (comPort == m_CurrentCOM)
 			return;
 
+		if (m_CurrentCOM != -1)
+		{
+			m_SerialPort->Close();
+			m_SerialPort.reset();
+		}
+
 		char comBuf[12] = "\\\\.\\COM";
 		snprintf(comBuf + 7, 4, "%d", comPort);
 
