@@ -49,7 +49,7 @@ namespace Console
 		return m_Text;
 	}
 
-	void Menu::Execute() const
+	void Menu::Execute()
 	{
 		while (!m_ShouldExitMenu && HandleMenu())
 			;
@@ -62,7 +62,7 @@ namespace Console
 		m_Items.push_back(move(item));
 	}
 
-	void Menu::Exit() const
+	void Menu::Exit() 
 	{
 		m_ShouldExitMenu = true;
 	}
@@ -89,7 +89,7 @@ namespace Console
 		SetCursorAtBottom();
 	}
 
-	bool Menu::HandleMenu() const
+	bool Menu::HandleMenu()
 	{
 		PrintMenu();
 

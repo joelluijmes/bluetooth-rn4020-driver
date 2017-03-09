@@ -8,6 +8,10 @@ project(${TARGET} CXX)
 set(
     SOURCES
     "main.cpp"
+	"Menu/MainMenu.h"
+	"Menu/MainMenu.cpp"
+	"Menu/ComPortMenu.h"
+	"Menu/ComPortMenu.cpp"
 )
 
 # Keep structure for Visual Studio

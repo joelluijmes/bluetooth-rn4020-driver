@@ -14,7 +14,7 @@ namespace Console
 		virtual ~MenuItem() { }
 
 		virtual std::string Text() const = 0;
-		virtual void Execute() const = 0;
+		virtual void Execute() = 0;
 	};
 
 	class Menu : public MenuItem
@@ -27,23 +27,24 @@ namespace Console
 
 		std::string Text() const override;
 
-		void Execute() const override;
+		void Execute() override;
 
 		void AddItem(std::unique_ptr<MenuItem> item);
 
 	protected:
-		void Exit() const;
+		virtual bool HandleMenu();
+		void Exit();
 
 	private:
 		std::string m_Text;
 		std::vector<std::unique_ptr<MenuItem>> m_Items;
 		const Menu* m_Parent;
 
-		mutable unsigned m_SelectedIndex;
-		mutable bool m_ShouldExitMenu;
+		unsigned m_SelectedIndex;
+		bool m_ShouldExitMenu;
 
 		void PrintMenu() const;
-		bool HandleMenu() const;
+		
 	};
 
 	class EmptyItem : public MenuItem
@@ -56,7 +57,7 @@ namespace Console
 			return m_Str;
 		}
 
-		void Execute() const override
+		void Execute() override
 		{
 		}
 
@@ -75,7 +76,7 @@ namespace Console
 			   return m_Str;
 		   }
 
-		   void Execute() const override
+		   void Execute() override
 		   {
 			   m_Function();
 		   }
