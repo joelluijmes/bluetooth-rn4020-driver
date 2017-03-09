@@ -25,13 +25,28 @@ namespace
 namespace Console
 {
 	Menu::Menu()
-		: m_Text(), m_Items(), m_SelectedIndex(0), m_ShouldExitMenu(false)
+		: m_Text(), m_Items(), m_Parent(NULL), m_SelectedIndex(0), m_ShouldExitMenu(false)
 	{
 	}
 
 	Menu::Menu(const string& text)
-		: m_Text(text), m_Items(), m_SelectedIndex(0), m_ShouldExitMenu(false)
+		: m_Text(text), m_Items(), m_Parent(NULL), m_SelectedIndex(0), m_ShouldExitMenu(false)
 	{
+	}
+
+	Menu::Menu(const Menu* parent)
+		: m_Text(), m_Items(), m_Parent(parent), m_SelectedIndex(0), m_ShouldExitMenu(false)
+	{
+	}
+
+	Menu::Menu(const Menu* parent, const string& text)
+		: m_Text(text), m_Items(), m_Parent(parent), m_SelectedIndex(0), m_ShouldExitMenu(false)
+	{
+	}
+
+	string Menu::Text() const
+	{
+		return m_Text;
 	}
 
 	void Menu::Execute() const
@@ -56,7 +71,10 @@ namespace Console
 	{
 		ClearConsole();
 
-		PrintItem(Text());
+		string index = m_Parent
+			? m_Parent->Text() + " > " + m_Text
+			: m_Text;
+		PrintItem(index);
 
 		unsigned currentIndex = 0;
 		for (const auto& item : m_Items)

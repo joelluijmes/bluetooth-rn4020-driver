@@ -18,8 +18,8 @@ void StartScan()
 class ComPortMenu : public Menu
 {
 public:
-	ComPortMenu()
-		: Menu(), m_ComPort(-1)
+	explicit ComPortMenu(const Menu* parent)
+		: Menu(parent, "Select COM Port"), m_ComPort(-1)
 	{
 		char buf[7] = "COM"; // COM255\0
 		char targetPath[32];
@@ -73,8 +73,8 @@ void ListComPorts()
 
 int main()
 {
-	Menu menu("Windows Example - Central Browser");	
-	menu.AddItem(unique_ptr<MenuItem>(make_unique<ComPortMenu>()));
+	Menu menu("Central Browser");	
+	menu.AddItem(unique_ptr<MenuItem>(make_unique<ComPortMenu>(&menu)));
 
 
 	// blocks until user exit

@@ -22,11 +22,10 @@ namespace Console
 	public:
 		Menu();
 		explicit Menu(const std::string& text);
+		explicit Menu(const Menu* parent);
+		Menu(const Menu* parent, const std::string& text);
 
-		std::string Text() const override
-		{
-			return m_Text;
-		}
+		std::string Text() const override;
 
 		void Execute() const override;
 
@@ -38,6 +37,7 @@ namespace Console
 	private:
 		std::string m_Text;
 		std::vector<std::unique_ptr<MenuItem>> m_Items;
+		const Menu* m_Parent;
 
 		mutable unsigned m_SelectedIndex;
 		mutable bool m_ShouldExitMenu;
